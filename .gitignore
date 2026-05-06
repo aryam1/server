@@ -1,0 +1,38 @@
+# OS and editor
+.DS_Store
+.vscode/
+*.swp
+*.swo
+*~
+
+# Secrets and sensitive data
+.env
+.env.local
+*.key
+*.pem
+*.crt
+
+# SSL certificates (managed by certbot)
+/etc/letsencrypt/
+
+# Docker databases and state
+/opt/*/data/
+/opt/filebrowser/database.db
+/opt/filebrowser/.env
+
+# Logs
+*.log
+/var/log/
+
+# Backups
+*.backup
+*.bak
+
+# Temporary files
+/tmp/
+*.tmp
+
+# VPS-specific (don't track media or large files)
+/opt/audiobookshelf/audiobooks/
+/opt/audiobookshelf/podcasts/
+/opt/files/

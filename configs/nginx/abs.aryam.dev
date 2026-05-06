@@ -1,0 +1,19 @@
+server {
+    server_name abs.aryam.dev;
+
+    location / {
+        proxy_pass http://localhost:13378;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Websocket support (ABS uses it)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # Will be managed by Certbot - initially HTTP only
+    listen 80;
+}
