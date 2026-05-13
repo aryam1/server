@@ -13,11 +13,14 @@
 *.crt
 
 # Docker databases and state
+*.sqlite
+docker/filebrowser/data
 docker/filebrowser/database.db
 docker/prowlarr/zilean
-docker/filebrowser/files/*
 
-# Audiobookshelf media
+# Audiobookshelf data 
+docker/audiobooks/audiobookshelf/config/migrations/
+docker/audiobooks/audiobookshelf/metadata/
 docker/audiobooks/audiobookshelf/audiobooks/
 docker/audiobooks/audiobookshelf/podcasts/
 
