@@ -22,10 +22,6 @@ ufw allow 443/tcp comment "HTTPS"
 log "Allowing Tailscale (port 41641)..."
 ufw allow 41641/udp comment "Tailscale"
 
-log "Denying direct access to internal Docker ports (8080, 13378)..."
-ufw deny 8080
-ufw deny 13378
-
 log "Reloading UFW..."
 ufw reload
 
@@ -33,3 +29,6 @@ log "UFW status:"
 ufw status numbered
 
 log "✓ UFW configured successfully"
+log ""
+log "  Once Tailscale is verified and you can SSH via Tailscale IP, close port 22:"
+log "  ufw delete allow 22/tcp && ufw reload"

@@ -10,18 +10,6 @@ log "Installing packages..."
 apt install -y \
     build-essential \
     curl \
-    git \
-    wget \
-    unzip \
-    btop \
-    tmux \
-    neovim \
-    nano \
-    fish \
-    bat \
-    ripgrep \
-    fzf \
-    zoxide \
     certbot \
     python3-certbot-nginx \
     nginx \
