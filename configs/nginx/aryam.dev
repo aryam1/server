@@ -1,9 +1,0 @@
-server {
-    server_name aryam.dev www.aryam.dev;
-
-    root /var/www/aryam.dev;
-    index index.html;
-
-    # Will be managed by Certbot - initially HTTP only
-    listen 80;
-}

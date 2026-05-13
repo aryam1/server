@@ -12,27 +12,21 @@
 *.pem
 *.crt
 
-# SSL certificates (managed by certbot)
-/etc/letsencrypt/
-
 # Docker databases and state
-/opt/*/data/
-/opt/filebrowser/database.db
-/opt/filebrowser/.env
+docker/filebrowser/database.db
+docker/prowlarr/zilean
+docker/filebrowser/files/*
+
+# Audiobookshelf media
+docker/audiobooks/audiobookshelf/audiobooks/
+docker/audiobooks/audiobookshelf/podcasts/
 
 # Logs
 *.log
-/var/log/
 
 # Backups
 *.backup
 *.bak
 
 # Temporary files
-/tmp/
 *.tmp
-
-# VPS-specific (don't track media or large files)
-/opt/audiobookshelf/audiobooks/
-/opt/audiobookshelf/podcasts/
-/opt/files/

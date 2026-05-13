@@ -2,6 +2,7 @@ services:
   filebrowser:
     image: gtstef/filebrowser:stable
     container_name: filebrowser
+    user: root
     ports:
       - "127.0.0.1:8080:80"
     volumes:
