@@ -6,23 +6,6 @@ NGINX_AVAILABLE="$SCRIPT_DIR/../configs/nginx/sites-available"
 NGINX_ENABLED="$SCRIPT_DIR/../configs/nginx/sites-enabled"
 EMAIL="arya.mukherjee@hotmail.com"
 
-log "Installing certbot..."
-apt install -y certbot python3-certbot-nginx
-
-log "Stopping Nginx to free port 80 for certbot..."
-systemctl stop nginx
-
-log "Generating SSL certificates..."
-for enabled in "$NGINX_ENABLED"/*; do
-    domain=$(basename "$enabled")
-    certbot certonly --standalone -d "$domain" \
-        --non-interactive --agree-tos -m "$EMAIL"
-    log "  Cert issued: $domain"
-done
-
-log "Enabling Nginx..."
-systemctl enable nginx
-
 log "Creating symlinks for enabled sites..."
 for enabled in "$NGINX_ENABLED"/*; do
     site=$(basename "$enabled")
@@ -38,12 +21,26 @@ log "Copying landing page..."
 mkdir -p /var/www/aryam.dev
 cp "$SCRIPT_DIR/../configs/nginx/index.html" /var/www/aryam.dev/
 
-log "Starting Nginx..."
-systemctl start nginx
+log "Installing certbot..."
+apt install -y certbot python3-certbot-nginx
+
+log "Stopping Nginx to free port 80 for certbot..."
+systemctl stop nginx
+
+log "Generating SSL certificates..."
+for enabled in "$NGINX_ENABLED"/*; do
+    domain=$(basename "$enabled")
+    certbot certonly --standalone -d "$domain" \
+        --non-interactive --agree-tos -m "$EMAIL"
+    log "  Cert issued: $domain"
+done
 
 log "Testing Nginx configuration..."
 nginx -t || {
     echo "✗ Nginx config test failed"
     exit 1
 }
+
+log "Enabling and starting Nginx..."
+systemctl enable --now nginx
 log "✓ Nginx configured"
