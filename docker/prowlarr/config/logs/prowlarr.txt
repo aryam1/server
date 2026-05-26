@@ -2049,3 +2049,43 @@
 2026-05-13 17:37:02.1|Info|Database|Main database compressed
 2026-05-13 17:37:35.5|Info|Microsoft.Hosting.Lifetime|Application is shutting down...
 2026-05-13 17:37:35.6|Info|ConsoleApp|Exiting main.
+2026-05-24 21:59:57.1|Info|Bootstrap|Starting Prowlarr - /app/prowlarr/bin/Prowlarr - Version 2.3.5.5327
+2026-05-24 21:59:57.2|Info|AppFolderInfo|Data directory is being overridden to [/config]
+2026-05-24 21:59:57.2|Info|AppFolderInfo|Data directory is being overridden to [/config]
+2026-05-24 21:59:57.6|Info|AppFolderInfo|Data directory is being overridden to [/config]
+2026-05-24 21:59:57.8|Info|MigrationController|*** Migrating data source=/config/prowlarr.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=1000 ***
+2026-05-24 21:59:57.9|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-05-24 21:59:57.9|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-05-24 21:59:57.9|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-05-24 21:59:58.0|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-05-24 21:59:58.0|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0534943s
+2026-05-24 21:59:58.0|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-05-24 21:59:58.0|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0574984s
+2026-05-24 21:59:58.0|Info|MigrationController|*** Migrating data source=/config/logs.db;cache size=-20000;datetimekind=Utc;journal mode=Wal;pooling=True;version=3;busytimeout=1000 ***
+2026-05-24 21:59:58.1|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrating
+2026-05-24 21:59:58.1|Info|FluentMigrator.Runner.MigrationRunner|PerformDBOperation 
+2026-05-24 21:59:58.1|Info|NzbDrone.Core.Datastore.Migration.Framework.NzbDroneSQLiteProcessor|Performing DB Operation
+2026-05-24 21:59:58.1|Info|DatabaseEngineVersionCheck|SQLite 3.50.4
+2026-05-24 21:59:58.1|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0070272s
+2026-05-24 21:59:58.1|Info|FluentMigrator.Runner.MigrationRunner|DatabaseEngineVersionCheck migrated
+2026-05-24 21:59:58.1|Info|FluentMigrator.Runner.MigrationRunner|=> 0.0075626s
+2026-05-24 21:59:58.3|Info|Microsoft.Hosting.Lifetime|Now listening on: http://[::]:9696
+2026-05-24 21:59:58.4|Info|CommandExecutor|Starting 3 threads for tasks.
+2026-05-24 21:59:58.6|Info|ManagedHttpDispatcher|IPv4 is available: True, IPv6 will be disabled
+2026-05-24 21:59:58.9|Info|Microsoft.Hosting.Lifetime|Application started. Press Ctrl+C to shut down.
+2026-05-24 21:59:58.9|Info|Microsoft.Hosting.Lifetime|Hosting environment: Production
+2026-05-24 21:59:58.9|Info|Microsoft.Hosting.Lifetime|Content root path: /app/prowlarr/bin
+2026-05-24 22:00:08.4|Warn|StaticResourceMapper|File /app/prowlarr/bin/UI/Content/android-chrome-192x192.png not found
+2026-05-24 22:00:28.5|Info|HistoryService|Removing items older than 30 days from history
+2026-05-24 22:00:28.6|Info|BackupService|Starting Backup
+2026-05-24 22:00:28.6|Info|HousekeepingService|Running housecleaning tasks
+2026-05-24 22:00:28.6|Info|Database|Vacuuming Log database
+2026-05-24 22:00:28.6|Info|Database|Log database compressed
+2026-05-24 22:00:28.6|Info|Database|Vacuuming Main database
+2026-05-24 22:00:28.6|Info|Database|Main database compressed
+2026-05-25 22:00:30.3|Info|HistoryService|Removing items older than 30 days from history
+2026-05-25 22:00:30.3|Info|HousekeepingService|Running housecleaning tasks
+2026-05-25 22:00:30.3|Info|Database|Vacuuming Log database
+2026-05-25 22:00:30.4|Info|Database|Log database compressed
+2026-05-25 22:00:30.4|Info|Database|Vacuuming Main database
+2026-05-25 22:00:30.4|Info|Database|Main database compressed

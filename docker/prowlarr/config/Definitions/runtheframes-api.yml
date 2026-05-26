@@ -1,71 +1,29 @@
 ---
-id: sextorrent-api
-name: SexTorrent (API)
-description: "SexTorrent is a Private Torrent Tracker for 3X / MOVIES / TV"
-language: en-US
+id: runtheframes-api
+name: RunTheFrames (API)
+description: "RunTheFrames is a GERMAN Private Torrent Tracker for MOVIES / TV / GENERAL"
+language: de-DE
 type: private
 encoding: UTF-8
 links:
-  - https://sextorrent.myds.me/
+  - https://runtheframes.xyz/
 
 caps:
   categorymappings:
-    - {id: 4, cat: XXX, desc: "Hardcore"}
-    - {id: 5, cat: XXX, desc: "Anal"}
-    - {id: 6, cat: XXX, desc: "Asian"}
-    - {id: 7, cat: XXX, desc: "BDSM"}
-    - {id: 8, cat: XXX, desc: "Big.Tits"}
-    - {id: 9, cat: XXX, desc: "Busty"}
-    - {id: 10, cat: XXX, desc: "Creampie"}
-    - {id: 11, cat: XXX, desc: "Fetish"}
-    - {id: 12, cat: XXX, desc: "Mature"}
-    - {id: 13, cat: XXX, desc: "Amateur"}
-    - {id: 14, cat: XXX, desc: "Old and Young"}
-    - {id: 15, cat: XXX, desc: "Milf"}
-    - {id: 16, cat: XXX, desc: "Oral"}
-    - {id: 17, cat: XXX, desc: "Orgy GangBang"}
-    - {id: 18, cat: XXX, desc: "Lesbian"}
-    - {id: 19, cat: XXX, desc: "Teen"}
-    - {id: 20, cat: XXX/x264, desc: "HD High.Definition"}
-    - {id: 21, cat: XXX/Other, desc: "Cartoon Hentai"}
-    - {id: 22, cat: XXX, desc: "Interracial"}
-    - {id: 23, cat: XXX, desc: "Masturbate"}
-    - {id: 24, cat: XXX/Other, desc: "Music.Video"}
-    - {id: 25, cat: XXX, desc: "POV"}
-    - {id: 26, cat: XXX, desc: "Shemale TS Trans.Sex"}
-    - {id: 27, cat: XXX, desc: "Straight"}
-    - {id: 28, cat: XXX/Pack, desc: "Mega.PACK"}
-    - {id: 29, cat: XXX, desc: "VR - Porn"}
-    - {id: 30, cat: XXX/ImageSet, desc: "Pictures XXX"}
-    - {id: 31, cat: XXX, desc: "SiteRip"}
-    - {id: 32, cat: XXX, desc: "Foreign"}
-    - {id: 33, cat: XXX, desc: "Latina"}
-    - {id: 34, cat: Console, desc: "Games All type"}
-    - {id: 35, cat: Books/Mags, desc: "Magazines (Press.)"}
-    - {id: 36, cat: XXX, desc: "Feature"}
-    - {id: 37, cat: XXX, desc: "Big-Ass"}
-    - {id: 38, cat: XXX/Other, desc: "Other (all.mixt.)"}
-    - {id: 39, cat: XXX, desc: "CumShot"}
-    - {id: 40, cat: XXX, desc: "Black"}
-    - {id: 41, cat: XXX, desc: "Piss"}
-    - {id: 42, cat: XXX, desc: "Homemade"}
-    - {id: 43, cat: XXX, desc: "Pregnant"}
-    - {id: 44, cat: XXX, desc: "GAY"}
-    - {id: 45, cat: XXX, desc: "Classic"}
-    - {id: 46, cat: XXX, desc: "Threesome"}
     - {id: 1, cat: Movies, desc: "Movies"}
     - {id: 2, cat: TV, desc: "TV"}
-    - {id: 3, cat: Books, desc: "Books"}
-    - {id: 47, cat: XXX, desc: "Unsorted XXX Videos"}
-    - {id: 48, cat: XXX, desc: "OnlyFans .com"}
-    - {id: 49, cat: Other, desc: "Uncategorized Videos"}
-    - {id: 50, cat: PC/Mobile-Other, desc: "Software for Mobiles"}
+    - {id: 3, cat: TV/Anime, desc: "Anime"}
+    - {id: 4, cat: TV/Documentary, desc: "Dokumentationen"}
+    - {id: 5, cat: Audio, desc: "Music"}
+    - {id: 6, cat: Console, desc: "Games"}
+    - {id: 7, cat: PC, desc: "Software"}
+    - {id: 8, cat: Audio/Other, desc: "Podcast"}
 
   modes:
     search: [q]
-    tv-search: [q, season, ep, imdbid, tvdbid, tmdbid]
     movie-search: [q, imdbid, tmdbid]
-    book-search: [q]
+    tv-search: [q, season, ep, imdbid, tvdbid, tmdbid]
+    music-search: [q]
 
 settings:
   - name: apikey
@@ -74,7 +32,7 @@ settings:
   - name: info_key
     type: info
     label: About your API key
-    default: "Find or Generate a new API Token by accessing your <a href=\"https://sextorrent.myds.me/\" target=\"_blank\">SexTorrent</a> account <i>My Settings</i> page and clicking on the <b>API Key</b> tab."
+    default: "Find or Generate a new API Token by accessing your <a href=\"https://runtheframes.xyz/\" target=\"_blank\">RunTheFrames</a> account <i>My Settings</i> page and clicking on the <b>API Key</b> tab."
   - name: freeleech
     type: checkbox
     label: Search freeleech only
@@ -102,7 +60,7 @@ settings:
   - name: info_activity
     type: info
     label: Account Inactivity
-    default: "Inactive Account mean No trafic Up/Down, these will be wiped very fast."
+    default: "Accounts with no activity (login/traffic) for more than 90 days may be automatically pruned."
 
 login:
   path: api/torrents
@@ -125,14 +83,10 @@ search:
     Authorization: ["Bearer {{ .Config.apikey }}"]
 
   inputs:
-  # if we have an id based search, add Season and Episode as query in name for UNIT3D < v6.  Else pass S/E Params for UNIT3D >= v6
     $raw: "{{ range .Categories }}&categories[]={{.}}{{end}}"
     name: "{{ .Keywords }}"
-    seasonNumber: "{{ .Query.Season }}"
-    episodeNumber: "{{ .Query.Ep }}"
     imdbId: "{{ .Query.IMDBIDShort }}"
     tmdbId: "{{ .Query.TMDBID }}"
-    tvdbId: "{{ .Query.TVDBID }}"
     "free[]": "{{ if .Config.freeleech }}100{{ else }}{{ end }}"
     sortField: "{{ .Config.sort }}"
     sortDirection: "{{ .Config.type }}"
@@ -230,10 +184,10 @@ search:
         True: 2 # double
     uploadvolumefactor:
       text: "{{ if .Result._featured }}2{{ else }}{{ .Result.uploadvolumefactor_double_upload }}{{ end }}"
-# global MR is 0.7 but torrents must be seeded for 7 days regardless of ratio
+# global MR is 0.4 but torrents must be seeded for 72 hours
 #    minimumratio:
-#      text: 0.7
+#      text: 0.4
     minimumseedtime:
-      # 7 days (as seconds = 7 x 24 x 60 x 60)
-      text: 604800
-# json UNIT3D 9.2.0 (custom)
+      # 72 hours (as seconds = 3 x 24 x 60 x 60)
+      text: 259200
+# json UNIT3D 9.2.0
