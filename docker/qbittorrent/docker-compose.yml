@@ -1,0 +1,46 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - SERVER_HOSTNAMES=nl994.nordvpn.com
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${NORDVPN_PRIVATE_KEY}
+    ports:
+      - "127.0.0.1:4201:4201"          # qBittorrent web UI — localhost only, Tailscale-accessible
+      - "127.0.0.1:5010:5010"          # Mousehole UI
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"    # KEY: shares gluetun's network namespace
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - WEBUI_PORT=4201
+    volumes:
+      - ./config:/config
+      - /:/host
+    depends_on:
+      - gluetun
+    restart: unless-stopped
+
+  mousehole:
+    image: tmmrtn/mousehole:latest
+    network_mode: "service:gluetun"
+    environment:
+      TZ: Europe/London # Set to your timezone for localization
+    volumes:
+      # persist cookie data across container restarts
+      - "mousehole:/var/lib/mousehole"
+    restart: unless-stopped
+
+volumes:
+  mousehole:

@@ -17,6 +17,8 @@
 docker/filebrowser/data
 docker/filebrowser/database.db
 docker/prowlarr/zilean
+docker/qbittorrent/config
+docker/qbittorrent/themes
 
 # Audiobookshelf data 
 docker/audiobooks/audiobookshelf/config/migrations/
