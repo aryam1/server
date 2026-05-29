@@ -4,6 +4,7 @@
 *.swp
 *.swo
 *~
+*__pycache__
 
 # Secrets and sensitive data
 .env
@@ -17,6 +18,7 @@
 docker/filebrowser/data
 docker/filebrowser/database.db
 docker/prowlarr/zilean
+docker/prowlarr/config/Definitions
 docker/qbittorrent/config
 docker/qbittorrent/themes
 
