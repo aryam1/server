@@ -64,8 +64,9 @@ def add_torrent(dl_hash, name):
 if __name__ == "__main__":
     user = get_user_data()
     print(f"Class: {user['classname']} | Unsat: {user['unsat_count']}/{user['unsat_limit']}")
-
-    slots_available = user["unsat_limit"] - user["unsat_count"]
+    
+    # Keeps 10% of slots free for desired torrents
+    slots_available = int(0.9*(user["unsat_limit"] - user["unsat_count"])) 
     page = 0
     existing = get_existing_mam_ids()
     added = 0
