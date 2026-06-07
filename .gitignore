@@ -37,3 +37,4 @@ docker/audiobooks/audiobookshelf/podcasts/
 
 # Temporary files
 *.tmp
+/docker/traefik/data/acme.json

@@ -1,0 +1,18 @@
+networks:
+  proxy:
+    external: true
+
+services:
+  site:
+    image: nginx:alpine
+    container_name: site
+    restart: unless-stopped
+    volumes:
+      - /server/websites:/usr/share/nginx/html:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.site.rule=Host(`aryam.dev`)
+      - traefik.http.routers.site.entrypoints=public
+      - traefik.http.services.site.loadbalancer.server.port=80
+    networks:
+      - proxy

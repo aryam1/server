@@ -1,18 +1,27 @@
+networks:
+  proxy:
+    external: true
+  internal:
+    driver: bridge
+
 services: 
-  prowlarr: 
+  prow: 
     image: lscr.io/linuxserver/prowlarr:latest 
-    container_name: prowlarr 
+    container_name: prow
+    networks:
+      - internal
+      - proxy
     environment: 
       - PUID=1000 
       - PGID=1000 
       - TZ=Europe/London 
     volumes: 
       - ./config:/config 
-    ports: 
-      - "127.0.0.1:9696:9696"
     restart: unless-stopped
-    networks:
-      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prowlarr.entrypoints=private
+      - traefik.http.services.prowlarr.loadbalancer.server.port=9696
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
@@ -20,3 +29,5 @@ services:
     networks: 
       - internal
     environment:
+      - LOG_LEVEL=info
+    restart: unless-stopped 

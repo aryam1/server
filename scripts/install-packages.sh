@@ -10,9 +10,6 @@ log "Installing packages..."
 apt install -y \
     build-essential \
     curl \
-    certbot \
-    python3-certbot-nginx \
-    nginx \
     docker.io \
     docker-compose-plugin \
     ufw \

@@ -1,7 +1,13 @@
+networks:
+  proxy:
+    external: true
+
 services:
-  filebrowser:
+  files:
     image: gtstef/filebrowser:stable
-    container_name: filebrowser
+    container_name: files
+    networks:
+      - proxy
     user: root
     ports:
       - "127.0.0.1:8080:80"
@@ -11,3 +17,7 @@ services:
     environment:
       - "FILEBROWSER_CONFIG=data/config.yaml"
     restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.filebrowser.entrypoints=private
+      - traefik.http.services.filebrowser.loadbalancer.server.port=80

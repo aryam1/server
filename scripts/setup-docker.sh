@@ -6,4 +6,5 @@ log "Starting Docker daemon..."
 systemctl start docker
 systemctl enable docker
 
-log "✓ Docker ready - run 'docker compose up -d' from each service directory in the repo"
+log "✓ Docker ready - run 'docker compose up -d' from each service directory in the repo, \
+or 'for dir in /server/docker/*/; cd $dir; docker compose up -d; cd -; end' from anywhere"

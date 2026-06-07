@@ -1,12 +1,20 @@
+networks:
+  proxy:
+    external: true
+
 services:
-  audiobookshelf:
+  abs:
     container_name: abs
     image: ghcr.io/advplyr/audiobookshelf:latest
-    ports:
-      - "127.0.0.1:13378:80"
+    networks:
+      - proxy
     volumes:
       - ./audiobookshelf/audiobooks:/audiobooks
       - ./audiobookshelf/podcasts:/podcasts
       - ./audiobookshelf/config:/config
       - ./audiobookshelf/metadata:/metadata
     restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.abs.entrypoints=public
+      - traefik.http.services.abs.loadbalancer.server.port=80

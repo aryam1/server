@@ -1,0 +1,44 @@
+networks:
+  proxy:
+    external: true
+
+services:
+  traf:
+    image: ghcr.io/traefik/traefik
+    container_name: traf
+    networks:
+      - proxy
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--ping=true"
+    healthcheck:
+     test: ["CMD", "traefik", "healthcheck", "--ping"]
+     interval: 30s
+     timeout: 10s
+     retries: 3
+     start_period: 30s
+    ports:
+      - "0.0.0.0:80:80"
+      - "${PUBLIC_IP}:443:443" # Have to specify public IP of server here so it doesnt clash with below
+      - "${TAILSCALE_IP}:443:8443" # Captures Tailscale packets
+    dns:
+     - 1.1.1.1
+     - 1.0.0.1
+    mem_limit: 2g
+    mem_reservation: 128m
+    environment:
+     - CF_API_EMAIL=${CF_API_EMAIL}
+     - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+    volumes:
+     - /etc/localtime:/etc/localtime:ro # Matches timezones
+     - /var/run/docker.sock:/var/run/docker.sock:ro # Docker socket for container watching
+     - /server/docker/traefik/data/traefik.yml:/traefik.yml:ro # Config
+     - /server/docker/traefik/data/acme.json:/acme.json # Lets Encrypt certs
+    labels:
+     - traefik.enable=true
+     - traefik.http.services.traefik.loadbalancer.server.port=8080 # Dashboard listening port
+     - traefik.http.routers.traefik_https.entrypoints=private # Only accessible through tailscale
+     - traefik.http.routers.traefik.tls.domains[0].main=aryam.dev
+     - traefik.http.routers.traefik.tls.domains[0].sans=*.aryam.dev # Wildcard cert
+     - traefik.http.routers.traefik_https.service=api@internal

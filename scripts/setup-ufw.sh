@@ -22,6 +22,9 @@ ufw allow 443/tcp comment "HTTPS"
 log "Allowing Tailscale (port 41641)..."
 ufw allow 41641/udp comment "Tailscale"
 
+log "Allowing Traefik\'s Tailscale endpoint..."
+ufw allow from 100.64.0.0/10 to any port 8443 proto tcp comment "Traefik private entrypoint"
+
 log "Reloading UFW..."
 ufw reload
 
