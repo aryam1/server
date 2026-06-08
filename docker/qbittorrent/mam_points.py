@@ -4,9 +4,15 @@ import re
 import os
 from dotenv import load_dotenv
 
+from datetime import datetime
+
+print(f"\n{'='*40}")
+print(f"Run started: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+print('='*40)
+
 load_dotenv()
 
-QB_HOST = "http://localhost:4201"
+QB_HOST = "https://qb.aryam.dev"
 
 MAM_HEADERS = {"cookie": f"mam_id={os.getenv("MAM_COOKIE")}"}
 
@@ -63,6 +69,7 @@ def add_torrent(dl_hash, name):
 
 if __name__ == "__main__":
     user = get_user_data()
+    
     print(f"Class: {user['classname']} | Unsat: {user['unsat_count']}/{user['unsat_limit']}")
     
     # Keeps 10% of slots free for desired torrents
@@ -82,4 +89,4 @@ if __name__ == "__main__":
             slots_available -= 1
         page += 1
         print(f"Added {added} torrents")
-    print(f"Done. Added {added} torrents.")
+    print(f"Done. Added {added} torrents.\n")
