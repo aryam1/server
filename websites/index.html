@@ -13,8 +13,13 @@
 ───────────────────────────────────────────── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Native browser smooth scrolling for anchor jumps */
-html { scroll-behavior: smooth; }
+/* Native browser smooth scrolling for anchor jumps.
+   scroll-snap-type: y proximity — snaps to sections when
+   the user is close enough, but allows free scrolling otherwise. */
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+}
 
 body {
   background: #050508;           /* near-black with a blue tint */
@@ -176,6 +181,7 @@ body.dragging { cursor: grabbing; }
   position: relative;            /* needed for absolute children (scroll-hint) */
   z-index: 2;
   pointer-events: none;
+  scroll-snap-align: start;
 }
 #hero-text { text-align: center; }
 
@@ -199,9 +205,9 @@ body.dragging { cursor: grabbing; }
    Long delay so it only appears after the title has settled. */
 #scroll-hint {
   position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-  font-size: 0.6rem; letter-spacing: 0.25em; color: #2a2a3a;
+  font-size: 0.6rem; letter-spacing: 0.25em; color: #8484ad;
   text-transform: uppercase; pointer-events: none;
-  opacity: 0; animation: fadein 2s ease 3.2s forwards;
+  opacity: 0; animation: fadein 1s ease 1s forwards;
   display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
 }
 /* The animated line below "scroll" text */
@@ -254,6 +260,7 @@ body.dragging { cursor: grabbing; }
   align-items: center;
   padding: 5rem 0;
   pointer-events: none;
+  scroll-snap-align: start;
 }
 
 /* Content column — pushed to the right half of the screen.
@@ -505,7 +512,7 @@ body.dragging { cursor: grabbing; }
         <p class="section-body">Open to fintech, quant-adjacent, and big tech engineering roles in London.</p>
         <div class="contact-links">
           <a href="https://github.com/aryam1" class="contact-link">github</a>
-          <a href="https://linkedin.com" class="contact-link">linkedin</a>
+          <a href="https://linkedin.com/in/aryamukherjee" class="contact-link">linkedin</a>
         </div>
       </div>
     </div>
@@ -675,11 +682,8 @@ window.addEventListener('touchend',()=>{
   isDragging=false; autoTimer=setTimeout(()=>{autoRotate=true;},2500);
 });
 
-// Scroll wheel zooms by moving the camera along Z.
-// Clamped between 1.8 (close) and 5 (far) to keep the globe usable.
-window.addEventListener('wheel',e=>{
-  camera.position.z=Math.max(1.8,Math.min(5,camera.position.z+e.deltaY*0.002));
-},{passive:true});
+// Scroll-wheel zoom removed — camera.position.z is now driven
+// by scroll progress in the animate loop (hero → first section).
 
 // On resize: update camera aspect ratio and renderer size to match new viewport.
 // Without this the scene stretches/compresses on resize.
@@ -691,38 +695,33 @@ window.addEventListener('resize',()=>{
 
 
 // ─────────────────────────────────────────────
-// SCROLL HELPERS
+// SCROLL HELPERS (SPRING PHYSICS)
 // ─────────────────────────────────────────────
-
-// Linear interpolation — blends current value toward target each frame.
-// t=0.06 means 6% of the remaining distance is covered per frame.
-// At 60fps this gives a ~0.25s settle time — smooth but responsive.
-function lerp(a,b,t){return a+(b-a)*t;}
 
 // Ease-in-out curve: slow start, fast middle, slow end.
 // Maps 0→1 input to 0→1 output with a smooth S-curve.
-// Used so the globe doesn't snap to its final position.
 function eio(t){return t<0.5?2*t*t:-1+(4-2*t)*t;}
 
 // Converts a normalised screen fraction (-1 to 1) to Three.js world units.
-// The globe lives in world space, not screen pixels — this bridges the two.
-// Derivation: at camera.position.z, the visible half-width = tan(fov/2)*z * aspect
 function worldX(ndc) {
   const fovRad = 55 * Math.PI / 180;
-  const halfH = Math.tan(fovRad/2) * camera.position.z; // visible half-height in world units
-  const halfW = halfH * (W()/H());                       // scale by aspect ratio for width
+  const halfH = Math.tan(fovRad/2) * camera.position.z; 
+  const halfW = halfH * (W()/H());                      
   return ndc * halfW;
 }
 
-// Globe position state — target is set by scroll, current lerps toward it each frame
-let curX = 0,   // actual current world-space X (updated in render loop)
-    tgtX = 0;   // desired X set by scroll handler
+// Globe position state using Spring Physics
+let targetScrollY = 0;  // The actual scroll position of the window
+let currentScrollY = 0; // The smoothed scroll position used for rendering
+let scrollVelocity = 0; // The spring velocity
+
+// Spring configuration constants
+const springTension = 0.02;  // How strongly it pulls toward the target
+const springFriction = 0.6; // How much it slows down (must be under 1.0)
 
 
 // ─────────────────────────────────────────────
-// DOM REFERENCES — cached once to avoid repeated
-// querySelector calls inside the scroll handler
-// which fires on every scroll event.
+// DOM REFERENCES
 // ─────────────────────────────────────────────
 const canvasEl    = document.getElementById('canvas-container');
 const topnav      = document.getElementById('topnav');
@@ -736,13 +735,11 @@ const navLinks    = document.querySelectorAll('.nav-link');
 // Nav link click handlers — smooth scroll to the target section
 document.querySelectorAll('.nav-link').forEach(btn => {
   btn.addEventListener('click', () => {
-    const el = document.getElementById(btn.dataset.target); // data-target="s1" etc.
+    const el = document.getElementById(btn.dataset.target); 
     if (el) el.scrollIntoView({behavior:'smooth'});
   });
 });
 
-// Match progress bar width to nav pill width — called after nav appears
-// and on resize since the pill can reflow.
 function setNavWidth() {
   const ni = document.getElementById('nav-inner');
   if (ni) {
@@ -753,19 +750,16 @@ function setNavWidth() {
 
 // ─────────────────────────────────────────────
 // SCROLL HANDLER
-// Fires on every scroll event. Does NOT animate
-// directly — it only sets targets and toggles
-// classes. Actual smooth movement happens in
-// the rAF render loop via lerp().
 // ─────────────────────────────────────────────
 function onScroll() {
-  const sy  = window.scrollY;
+  // Update the target scroll position immediately when the user scrolls
+  targetScrollY = window.scrollY;
+
   const vh  = H();
-  const raw = Math.min(sy / vh, 1); // normalised 0→1 over the first viewport height
-  const e   = eio(raw);             // eased version for smoother feel
+  // For UI elements we still use the direct scroll position to avoid UI feeling disconnected
+  const raw = Math.min(targetScrollY / vh, 1); 
 
   // Fade out hero text as user begins scrolling.
-  // Multiplying by 4 makes it disappear by raw=0.25 (quarter scroll).
   heroText.style.opacity = String(Math.max(0, 1 - raw * 4));
 
   // Show nav once user has scrolled ~18% of viewport height
@@ -774,83 +768,89 @@ function onScroll() {
   navProgress.classList.toggle('vis', pastHero);
   if (pastHero) setNavWidth();
 
-  // Progress bar fill — percentage of total scrollable distance
+  // Progress bar fill
   const totalScrollable = document.body.scrollHeight - vh;
-  navFill.style.width = (totalScrollable > 0 ? (sy / totalScrollable) * 100 : 0) + '%';
+  navFill.style.width = (totalScrollable > 0 ? (targetScrollY / totalScrollable) * 100 : 0) + '%';
 
-  // Set globe target X position. worldX(-0.6 * e) means:
-  // at full scroll (e=1), move globe 60% of the half-screen-width to the left.
-  // The negative value pushes it off the left side of centre.
-  tgtX = worldX(-0.6 * e);
-
-  // Add blur class once scroll passes 25% — filters applied in CSS
+  // Add blur class
   canvasEl.classList.toggle('blurred', raw > 0.25);
 
-  // Highlight the nav link matching the section currently in view.
-  // Walks through sections and marks the last one whose top edge
-  // is above 60% of the viewport height.
+  // Highlight active nav link
   let active = -1;
   sectionEls.forEach((el, i) => {
     if (el && el.getBoundingClientRect().top <= vh * 0.6) active = i;
   });
   navLinks.forEach((l,i) => l.classList.toggle('active', i === active));
 
-  // Reveal section elements as they enter the viewport.
-  // getBoundingClientRect().top < vh*0.88 means the element's top
-  // edge is within the bottom 12% of the viewport.
+  // Reveal section elements
   document.querySelectorAll('.section-label,.section-title,.section-body,.card,.divider,.contact-link').forEach(el => {
     if (el.getBoundingClientRect().top < vh * 0.88) el.classList.add('vis');
   });
 }
 
-window.addEventListener('scroll', onScroll, {passive:true}); // passive: we never preventDefault
+window.addEventListener('scroll', onScroll, {passive:true});
 window.addEventListener('resize', setNavWidth);
 
 
 // ─────────────────────────────────────────────
 // RENDER LOOP
-// requestAnimationFrame schedules this to run
-// before each browser repaint — typically 60fps.
-// This is where globe rotation and position are
-// actually updated. Keeping animation here (not
-// in the scroll handler) ensures smoothness
-// regardless of scroll event frequency.
 // ─────────────────────────────────────────────
 function animate() {
-  requestAnimationFrame(animate); // schedule next frame before doing work
+  requestAnimationFrame(animate); 
 
   if (!isDragging) {
-    // Apply inertia decay — velocity falls to ~5% over ~50 frames
-    vel.x*=0.95; vel.y*=0.95;
-    globeGroup.rotation.x+=vel.x;
-    globeGroup.rotation.y+=vel.y;
+    vel.x *= 0.95; vel.y *= 0.95;
+    globeGroup.rotation.x += vel.x;
+    globeGroup.rotation.y += vel.y;
 
-    // Gentle auto-rotation when user isn't interacting.
-    // Y-axis (horizontal spin) slightly faster than X-axis (tilt) — looks natural.
     if (autoRotate) {
-      globeGroup.rotation.y+=0.0015;
-      globeGroup.rotation.x+=0.0003;
+      globeGroup.rotation.y += 0.0015;
+      globeGroup.rotation.x += 0.0003;
     }
   }
 
-  // Lerp globe toward scroll target — this is what makes movement smooth.
-  // tgtX is set in onScroll, curX chases it at 6%/frame.
-  // Separating target-setting (scroll event) from actual movement (rAF)
-  // is the key pattern that prevents jittery scroll-driven animation.
-  curX = lerp(curX, tgtX, 0.06);
-  globeGroup.position.x = curX;
+  // --- SPRING PHYSICS CALCULATION ---
+  // 1. Calculate the distance to the target
+  const distance = targetScrollY - currentScrollY;
 
-  // Update coordinate display — convert radians to degrees, clamp to sane range.
-  // These are fake lat/lon derived from rotation angles, not real geography.
+  // 2. Add force to the velocity based on distance (Tension)
+  scrollVelocity += distance * springTension;
+
+  // 3. Apply friction so it eventually stops
+  scrollVelocity *= springFriction;
+
+  // 4. Update the current scroll position using the velocity
+  currentScrollY += scrollVelocity;
+
+  // 5. Calculate the eased progress using the *smoothed* scroll value
+  //    Completes over 1 viewport height so globe is fully transitioned by s1
+  const vh = H();
+  const raw = Math.min(currentScrollY / vh, 1);
+  const e = eio(raw);
+
+  // 6. Zoom camera in as user scrolls (3 at hero → 1.8 at first section)
+  camera.position.z = 3 - 1.2 * e;
+
+  // 7. Slide globe from centre to left half of screen
+  globeGroup.position.x = worldX(-0.67 * e);
+
+  // 8. Dip globe down mid-transition then back up as it grows
+  //    sin(π·e) peaks at e=0.5 (mid-scroll) giving a smooth arc
+  const dip = Math.sin(Math.PI * e) * -0.25;  // negative = downward
+  const settle = e * -0.1;                      // slight upward lift at full size
+  globeGroup.position.y = dip + settle;
+
+  // Update coordinate display
   const lon = Math.abs((globeGroup.rotation.y*180/Math.PI)%360).toFixed(2);
   const lat = Math.abs((globeGroup.rotation.x*180/Math.PI)%180).toFixed(2);
   coordsEl.textContent = lat+'° N  '+lon+'° E';
 
-  renderer.render(scene, camera); // draw the scene
+  renderer.render(scene, camera); 
 }
 
-animate();      // kick off the render loop
-onScroll();     // run once on load to set initial state (in case page is scrolled on refresh)
+animate();      
+onScroll();     
 </script>
 </body>
 </html>
+
