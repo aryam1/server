@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 
 from datetime import datetime
+from time import sleep
 
 print(f"\n{'='*40}")
 print(f"Run started: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
@@ -87,6 +88,7 @@ if __name__ == "__main__":
             add_torrent(t["dl"], t["title"])
             added += 1
             slots_available -= 1
+            sleep(1)
         page += 1
         print(f"Added {added} torrents")
     print(f"Done. Added {added} torrents.\n")
