@@ -5,43 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>aryam.dev</title>
 <style>
+/* ─────────────────────────────────────────────
+   RESET & BASE
+   Remove all default browser margin/padding.
+   border-box means width/height include padding
+   and border — no surprises when sizing elements.
+───────────────────────────────────────────── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Native browser smooth scrolling for anchor jumps */
 html { scroll-behavior: smooth; }
+
 body {
-  background: #050508;
+  background: #050508;           /* near-black with a blue tint */
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   color: #e0e0e0;
-  overflow-x: hidden;
-  cursor: grab;
+  overflow-x: hidden;            /* prevent horizontal scroll from globe overflow */
+  cursor: grab;                  /* signals the canvas is draggable */
 }
+/* Swap cursor while mouse button is held down — set via JS on mousedown */
 body.dragging { cursor: grabbing; }
 
+
+/* ─────────────────────────────────────────────
+   CANVAS CONTAINER
+   The Three.js renderer appends its <canvas>
+   here. Fixed + full viewport so it sits behind
+   all content as a persistent background layer.
+   z-index: 0 keeps it below everything.
+   CSS filter transition enables the blur that
+   fires when the user scrolls into content.
+───────────────────────────────────────────── */
 #canvas-container {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 0;
-  transition: filter 0.8s ease;
+  transition: filter 0.8s ease;  /* smooth blur in/out — duration tunable here */
 }
+/* Toggled via JS classList when scroll passes threshold.
+   blur softens the globe so it doesn't compete with text.
+   brightness darkens it simultaneously for contrast. */
 #canvas-container.blurred {
   filter: blur(1.5px);
 }
 
-/* ── NAV ── */
+
+/* ─────────────────────────────────────────────
+   NAV BAR
+   Fixed at top, hidden on hero (opacity: 0,
+   pointer-events: none). JS adds .vis class
+   once scroll passes ~18% of viewport height.
+   Uses opacity transition rather than
+   display:none so it can animate in smoothly.
+───────────────────────────────────────────── */
 #topnav {
   position: fixed;
   top: 0; left: 0; right: 0;
-  z-index: 100;
+  z-index: 100;                  /* above canvas (0) and content (2) */
   height: 52px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  pointer-events: none;
+  justify-content: center;       /* nav-inner pill sits in the middle */
+  pointer-events: none;          /* invisible nav shouldn't block clicks */
   opacity: 0;
   transition: opacity 0.5s ease;
 }
 #topnav.vis { opacity: 1; pointer-events: auto; }
 
+/* The pill container — semi-transparent dark bg with a border.
+   Gives the nav a floating, frosted feel without being full-width. */
 #nav-inner {
   display: flex;
   align-items: center;
@@ -51,6 +84,8 @@ body.dragging { cursor: grabbing; }
   padding: 0 0.25rem;
 }
 
+/* Logo / wordmark on the left of the pill.
+   border-right creates a subtle divider between logo and links. */
 #nav-logo {
   font-size: 0.78rem;
   letter-spacing: 0.2em;
@@ -60,25 +95,28 @@ body.dragging { cursor: grabbing; }
   height: 36px;
   display: flex;
   align-items: center;
-  flex-shrink: 0;
+  flex-shrink: 0;                /* don't let it collapse under flex pressure */
 }
 
+/* Individual nav link buttons.
+   Using <button> elements for accessibility (keyboard nav).
+   reset border/background since buttons have browser defaults. */
 .nav-link {
   font-size: 0.58rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #2a2a4a;
+  color: #2a2a4a;                /* dim by default */
   padding: 0 1.1rem;
   height: 36px;
-  display: flex;
-  align-items: center;
+  display: flex; align-items: center;
   cursor: pointer;
   transition: color 0.3s ease;
   white-space: nowrap;
   border: none;
   background: none;
-  position: relative;
+  position: relative;            /* needed for the ::before pseudo-element divider */
 }
+/* Thin vertical line between adjacent links — cleaner than borders on the element itself */
 .nav-link + .nav-link::before {
   content: '';
   position: absolute;
@@ -88,54 +126,77 @@ body.dragging { cursor: grabbing; }
   background: #0d0d1a;
 }
 .nav-link:hover { color: #666; }
-.nav-link.active { color: #4a9eff; }
+.nav-link.active { color: #4a9eff; }  /* blue highlight on current section */
 
+
+/* ─────────────────────────────────────────────
+   PROGRESS BAR
+   Sits directly below the nav pill, centred,
+   matching the pill width (set by JS).
+   The fill width is driven by scroll position
+   in onScroll() — acts as a reading indicator.
+───────────────────────────────────────────── */
 #nav-progress {
   position: fixed;
-  top: 52px; left: 50%;
-  transform: translateX(-50%);
+  top: 52px;                     /* flush under the nav bar */
+  left: 50%;
+  transform: translateX(-50%);  /* horizontally centred to match nav-inner */
   z-index: 100;
-  width: 0;
+  width: 0;                      /* JS sets this to nav-inner.offsetWidth */
   opacity: 0;
-  transition: opacity 0.5s ease, width 0s;
+  transition: opacity 0.5s ease, width 0s; /* width snaps, opacity fades */
 }
-#nav-progress.vis {
-  opacity: 1;
-}
+#nav-progress.vis { opacity: 1; }
+
 #nav-progress-track {
   height: 1px;
-  background: #0d0d1a;
+  background: #0d0d1a;           /* dark track behind the fill */
   width: 100%;
 }
 #nav-progress-fill {
   height: 100%;
   background: #4a9eff;
-  width: 0%;
-  transition: width 0.1s linear;
+  width: 0%;                     /* driven by JS: (scrollY / maxScroll) * 100 */
+  transition: width 0.1s linear; /* small lag prevents jumpiness */
 }
 
-/* ── HERO ── */
+
+/* ─────────────────────────────────────────────
+   HERO SECTION
+   Full viewport height, content centred.
+   z-index: 2 puts it above the canvas.
+   pointer-events: none so the canvas underneath
+   still receives mouse events for globe drag.
+───────────────────────────────────────────── */
 #hero {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+  position: relative;            /* needed for absolute children (scroll-hint) */
   z-index: 2;
   pointer-events: none;
 }
 #hero-text { text-align: center; }
+
+/* clamp() = responsive font: min 2rem, preferred 5vw, max 3.5rem.
+   Animates in from opacity 0 with a delay for a staged entrance. */
 #hero-name {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 400; letter-spacing: 0.25em; color: #fff;
   opacity: 0; animation: fadein 1.5s ease 0.6s forwards;
 }
+/* Subtitle fades in slightly after the name */
 #hero-sub {
   font-size: clamp(0.65rem, 1.5vw, 0.8rem);
   letter-spacing: 0.4em; color: #4a9eff;
   margin-top: 0.75rem; text-transform: uppercase;
   opacity: 0; animation: fadein 1.5s ease 1.2s forwards;
 }
+
+/* Scroll nudge at bottom of hero.
+   Absolutely positioned relative to #hero.
+   Long delay so it only appears after the title has settled. */
 #scroll-hint {
   position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
   font-size: 0.6rem; letter-spacing: 0.25em; color: #2a2a3a;
@@ -143,8 +204,17 @@ body.dragging { cursor: grabbing; }
   opacity: 0; animation: fadein 2s ease 3.2s forwards;
   display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
 }
+/* The animated line below "scroll" text */
 .scroll-line { width:1px; height:24px; background:#2a2a3a; animation: pulse 2s ease-in-out infinite; }
 
+
+/* ─────────────────────────────────────────────
+   COORDINATES DISPLAY
+   Bottom-right corner. Shows lat/lon derived
+   from globe rotation angles — purely decorative
+   but reinforces the globe metaphor.
+   Updated every frame in the render loop.
+───────────────────────────────────────────── */
 #coords {
   position: fixed; bottom: 2rem; right: 2rem;
   font-size: 0.65rem; letter-spacing: 0.15em; color: #1a1a2e;
@@ -152,12 +222,32 @@ body.dragging { cursor: grabbing; }
   opacity: 0; animation: fadein 2s ease 2.5s forwards;
 }
 
+
+/* ─────────────────────────────────────────────
+   KEYFRAME ANIMATIONS
+   fadein: used on all initially-hidden elements.
+   "forwards" fill-mode keeps them at opacity 1
+   after the animation ends.
+
+   pulse: the scroll-hint line breathes
+   to draw attention without being distracting.
+───────────────────────────────────────────── */
 @keyframes fadein { to { opacity: 1; } }
 @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
 
-/* ── CONTENT ── */
+
+/* ─────────────────────────────────────────────
+   CONTENT WRAPPER
+   Sits on top of the fixed canvas (z-index: 2).
+   pointer-events: none here so the globe stays
+   draggable through the gaps between sections.
+   Individual interactive children re-enable it.
+───────────────────────────────────────────── */
 #content { position: relative; z-index: 2; pointer-events: none; }
 
+/* Each portfolio section fills at least the full viewport.
+   flex + align-items:center vertically centres the inner content.
+   padding provides breathing room at top/bottom. */
 .section {
   min-height: 100vh;
   display: flex;
@@ -166,6 +256,9 @@ body.dragging { cursor: grabbing; }
   pointer-events: none;
 }
 
+/* Content column — pushed to the right half of the screen.
+   margin-left: auto + width: 44% achieves right-alignment.
+   pointer-events re-enabled here so links/buttons work. */
 .section-inner {
   margin-left: auto;
   width: 44%;
@@ -173,14 +266,28 @@ body.dragging { cursor: grabbing; }
   pointer-events: auto;
 }
 
+/* Frosted panel behind section text.
+   Semi-transparent dark bg + backdrop-filter blur creates
+   depth separation from the globe behind it.
+   border-left is the subtle accent line on the left edge. */
 .section-backdrop {
   background: rgba(5, 5, 10, 0.82);
   border-left: 1px solid #0d0d1e;
   padding: 2.5rem 2rem 2.5rem 2rem;
   backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px); /* Safari prefix */
 }
 
+
+/* ─────────────────────────────────────────────
+   SECTION REVEAL ANIMATIONS
+   Elements start invisible + shifted down 10px.
+   JS adds .vis when the element enters the
+   viewport (via getBoundingClientRect in onScroll).
+   transition handles the actual animation.
+   Each element type has a slightly different
+   delay to create a staggered cascade effect.
+───────────────────────────────────────────── */
 .section-label {
   font-size: 0.58rem; letter-spacing: 0.4em; color: #4a9eff;
   text-transform: uppercase; margin-bottom: 0.9rem;
@@ -189,6 +296,7 @@ body.dragging { cursor: grabbing; }
 }
 .section-label.vis { opacity: 1; transform: translateY(0); }
 
+/* Expands from 24px to 48px width when revealed — subtle animation */
 .divider {
   width: 24px; height: 1px; background: #1a3a5c; margin-bottom: 1.4rem;
   opacity: 0; transition: opacity 0.6s ease 0.1s, width 0.8s ease 0.1s;
@@ -210,6 +318,15 @@ body.dragging { cursor: grabbing; }
 }
 .section-body.vis { opacity: 1; transform: translateY(0); }
 
+
+/* ─────────────────────────────────────────────
+   CARDS
+   Stack vertically with a small gap.
+   Left border accent matches the section divider
+   colour — shifts to blue on hover.
+   Each card has an nth-child transition-delay
+   so they cascade in one by one when revealed.
+───────────────────────────────────────────── */
 .cards { display: flex; flex-direction: column; gap: 0.65rem; }
 .card {
   border: 1px solid #0d0d1a; border-left: 1px solid #1a3a5c;
@@ -218,25 +335,38 @@ body.dragging { cursor: grabbing; }
   opacity: 0; transform: translateY(10px);
   transition: opacity 0.5s ease, transform 0.5s ease, border-left-color 0.3s, background 0.3s;
 }
+/* Staggered reveal delays — each card waits a little longer */
 .card:nth-child(1){transition-delay:0.2s}
 .card:nth-child(2){transition-delay:0.3s}
 .card:nth-child(3){transition-delay:0.4s}
 .card:nth-child(4){transition-delay:0.5s}
 .card.vis { opacity: 1; transform: translateY(0); }
+/* Hover: left border pops blue, bg gets a very faint blue tint */
 .card:hover { border-left-color: #4a9eff; background: rgba(74,158,255,0.03); }
 
 .card-title { font-size: 0.75rem; color: #d0d0d0; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
 .card-sub { font-size: 0.62rem; color: #222238; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem; }
 .card-desc { font-size: 0.68rem; color: #444460; line-height: 1.7; }
+
+/* Tech stack tags — minimal pill style */
 .tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
 .tag { font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: #1a3a5a; border: 1px solid #0d1a2a; padding: 0.15rem 0.4rem; }
 
+
+/* ─────────────────────────────────────────────
+   CONTACT LINKS
+   Slide in from the left when revealed.
+   ::before pseudo-element draws a short line
+   before each link — a decorative dash prefix.
+   color: currentColor means it inherits the
+   link colour automatically including on hover.
+───────────────────────────────────────────── */
 .contact-links { display: flex; flex-direction: column; gap: 0.55rem; }
 .contact-link {
   font-size: 0.7rem; letter-spacing: 0.15em; color: #2a2a4a;
   text-decoration: none; text-transform: uppercase;
   display: flex; align-items: center; gap: 0.7rem;
-  opacity: 0; transform: translateX(-8px);
+  opacity: 0; transform: translateX(-8px);    /* starts shifted left */
   transition: opacity 0.5s ease, transform 0.5s ease, color 0.3s;
 }
 .contact-link:nth-child(1){transition-delay:0.2s}
@@ -249,7 +379,7 @@ body.dragging { cursor: grabbing; }
 #footer {
   position: relative; z-index: 2;
   padding: 3rem 5% 3rem 0;
-  display: flex; justify-content: flex-end;
+  display: flex; justify-content: flex-end; /* right-aligned to match section-inner */
   pointer-events: none;
 }
 #footer-text { font-size: 0.58rem; letter-spacing: 0.2em; color: #111122; text-transform: uppercase; }
@@ -257,8 +387,10 @@ body.dragging { cursor: grabbing; }
 </head>
 <body>
 
+<!-- Three.js renders into this div. The canvas is appended by JS. -->
 <div id="canvas-container"></div>
 
+<!-- NAV BAR — hidden until scroll threshold, revealed by JS adding .vis -->
 <div id="topnav">
   <div id="nav-inner">
     <div id="nav-logo">aryam</div>
@@ -268,12 +400,16 @@ body.dragging { cursor: grabbing; }
     <button class="nav-link" data-target="s4">contact</button>
   </div>
 </div>
+
+<!-- PROGRESS BAR — width matched to nav-inner by JS, fill driven by scroll -->
 <div id="nav-progress">
   <div id="nav-progress-track"><div id="nav-progress-fill"></div></div>
 </div>
 
 <div id="coords"></div>
 
+<!-- HERO — full viewport section. z-index:2 + pointer-events:none inline
+     so the globe canvas beneath receives drag events. -->
 <section id="s0" style="height:100vh;position:relative;z-index:2;pointer-events:none;">
   <div id="hero">
     <div id="hero-text">
@@ -380,100 +516,214 @@ body.dragging { cursor: grabbing; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+// ─────────────────────────────────────────────
+// UTILITY: live viewport dimensions as functions
+// so they always reflect the current window size
+// rather than values captured at load time.
+// ─────────────────────────────────────────────
 const W = () => window.innerWidth;
 const H = () => window.innerHeight;
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, W()/H(), 0.1, 1000);
-camera.position.z = 3;
 
+// ─────────────────────────────────────────────
+// THREE.JS SCENE SETUP
+// The three core objects every Three.js scene needs:
+//   scene    — the container for all 3D objects
+//   camera   — defines what we see and how
+//   renderer — draws the scene to a <canvas>
+// ─────────────────────────────────────────────
+
+const scene = new THREE.Scene();
+
+// PerspectiveCamera(fov, aspect, near, far)
+// fov 55° is slightly narrower than human vision — looks cinematic.
+// near/far define the clipping planes: objects outside this range aren't drawn.
+const camera = new THREE.PerspectiveCamera(55, W()/H(), 0.1, 1000);
+camera.position.z = 3; // pull camera back 3 units so the globe (radius 1) fills the frame
+
+// WebGLRenderer with antialiasing for smooth edges.
+// alpha:false (default) — we set a solid clear colour instead of transparency.
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); // cap at 2x to avoid GPU overload on HiDPI screens
 renderer.setSize(W(), H());
-renderer.setClearColor(0x050508, 1);
+renderer.setClearColor(0x050508, 1); // match body background so there's no seam
 document.getElementById('canvas-container').appendChild(renderer.domElement);
 
+
+// ─────────────────────────────────────────────
+// GLOBE CONSTRUCTION
+// A Group acts as a parent transform — rotating
+// the group rotates all children together.
+// This is how we spin the whole globe (sphere +
+// dots + rings) as one unit.
+// ─────────────────────────────────────────────
 const globeGroup = new THREE.Group();
 scene.add(globeGroup);
 
+// Wireframe sphere — the latitude/longitude grid lines of the globe.
+// SphereGeometry(radius, widthSegments, heightSegments)
+// 36×24 segments gives enough grid lines without being too dense.
 const sphere = new THREE.Mesh(
   new THREE.SphereGeometry(1, 36, 24),
   new THREE.MeshBasicMaterial({ color: 0x1a3a5c, wireframe: true, transparent: true, opacity: 0.55 })
 );
 globeGroup.add(sphere);
 
+// SURFACE DOTS — 420 random points scattered over the sphere surface.
+// Uses spherical coordinates: phi (polar) and theta (azimuthal).
+// Math.acos(2*random-1) gives uniform distribution over the sphere
+// (not just random lat/lon which would cluster at the poles).
 const dp = [];
 for (let i = 0; i < 420; i++) {
-  const phi = Math.acos(2*Math.random()-1);
-  const theta = 2*Math.PI*Math.random();
-  dp.push(1.002*Math.sin(phi)*Math.cos(theta), 1.002*Math.cos(phi), 1.002*Math.sin(phi)*Math.sin(theta));
+  const phi = Math.acos(2*Math.random()-1);   // polar angle 0→π, uniform
+  const theta = 2*Math.PI*Math.random();       // azimuthal angle 0→2π
+  // r=1.002 places dots fractionally above the sphere surface to avoid z-fighting
+  dp.push(
+    1.002*Math.sin(phi)*Math.cos(theta),  // x
+    1.002*Math.cos(phi),                  // y
+    1.002*Math.sin(phi)*Math.sin(theta)   // z
+  );
 }
 const dg = new THREE.BufferGeometry();
+// Float32BufferAttribute(array, itemSize) — itemSize 3 means xyz per point
 dg.setAttribute('position', new THREE.Float32BufferAttribute(dp, 3));
 globeGroup.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x4a9eff, size: 0.018, transparent: true, opacity: 0.8 })));
 
+// ORBITAL RINGS — two TorusGeometry rings at different tilt angles.
+// Each defined as [rotationX, rotationY, colour, opacity].
+// TorusGeometry(radius, tubeRadius, radialSegments, tubularSegments)
+// tubeRadius 0.003 makes them hairline thin.
 [[Math.PI/2,0,0x4a9eff,0.25],[Math.PI/3,Math.PI/5,0x1a6aaa,0.18]].forEach(([rx,ry,col,op]) => {
   const r = new THREE.Mesh(new THREE.TorusGeometry(1.08,0.003,2,120), new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));
   r.rotation.x=rx; r.rotation.y=ry;
   globeGroup.add(r);
 });
 
+// STAR FIELD — 1800 random points scattered through a large cube.
+// The cube is 80 units wide — large enough to fill the background
+// at any camera zoom level used here (z: 1.8–5).
 const sp = [];
-for (let i = 0; i < 1800; i++) sp.push((Math.random()-.5)*80,(Math.random()-.5)*80,(Math.random()-.5)*80);
+for (let i = 0; i < 1800; i++) sp.push(
+  (Math.random()-.5)*80,   // x: -40 to +40
+  (Math.random()-.5)*80,   // y
+  (Math.random()-.5)*80    // z
+);
 const sg = new THREE.BufferGeometry();
-sg.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
+sg.setAttribute('position', new THREE.Float32BufferAttribute(sp,3));
+// Added directly to scene (not globeGroup) so stars don't rotate with the globe
 scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff,size:0.04,transparent:true,opacity:0.35})));
 
-let isDragging=false, prev={x:0,y:0}, vel={x:0,y:0}, autoRotate=true, autoTimer;
+
+// ─────────────────────────────────────────────
+// DRAG TO ROTATE
+// Tracks mouse/touch deltas each frame and
+// applies them as rotation velocity to globeGroup.
+// Velocity decays (×0.95 per frame) for inertia.
+// autoRotate resumes after 2.5s of inactivity.
+// ─────────────────────────────────────────────
+let isDragging=false,
+    prev={x:0,y:0},   // previous mouse position for delta calculation
+    vel={x:0,y:0},    // rotation velocity (radians/frame)
+    autoRotate=true,
+    autoTimer;
+
 const cvs = renderer.domElement;
 
 cvs.addEventListener('mousedown', e => {
-  isDragging=true; autoRotate=false; clearTimeout(autoTimer);
-  prev={x:e.clientX,y:e.clientY}; vel={x:0,y:0};
+  isDragging=true;
+  autoRotate=false;
+  clearTimeout(autoTimer);          // cancel any pending auto-rotate resume
+  prev={x:e.clientX,y:e.clientY};
+  vel={x:0,y:0};                   // kill existing inertia on new drag
   document.body.classList.add('dragging');
 });
+
 window.addEventListener('mousemove', e => {
   if (!isDragging) return;
-  vel.x=(e.clientY-prev.y)*0.005; vel.y=(e.clientX-prev.x)*0.005;
-  globeGroup.rotation.x+=vel.x; globeGroup.rotation.y+=vel.y;
+  // delta Y controls X rotation (up/down tilts the globe)
+  // delta X controls Y rotation (left/right spins the globe)
+  vel.x=(e.clientY-prev.y)*0.005;
+  vel.y=(e.clientX-prev.x)*0.005;
+  globeGroup.rotation.x+=vel.x;
+  globeGroup.rotation.y+=vel.y;
   prev={x:e.clientX,y:e.clientY};
 });
+
+// mouseup on window (not canvas) catches releases outside the canvas
 window.addEventListener('mouseup', () => {
-  isDragging=false; document.body.classList.remove('dragging');
+  isDragging=false;
+  document.body.classList.remove('dragging');
+  // Resume auto-rotate after 2.5s of no interaction
   autoTimer=setTimeout(()=>{autoRotate=true;},2500);
 });
+
+// Touch equivalents — same logic, different event API
 cvs.addEventListener('touchstart', e=>{
   isDragging=true; autoRotate=false; clearTimeout(autoTimer);
   prev={x:e.touches[0].clientX,y:e.touches[0].clientY}; vel={x:0,y:0};
-},{passive:true});
+},{passive:true}); // passive:true tells browser we won't call preventDefault — allows scroll
+
 window.addEventListener('touchmove', e=>{
   if(!isDragging)return;
-  vel.x=(e.touches[0].clientY-prev.y)*0.005; vel.y=(e.touches[0].clientX-prev.x)*0.005;
+  vel.x=(e.touches[0].clientY-prev.y)*0.005;
+  vel.y=(e.touches[0].clientX-prev.x)*0.005;
   globeGroup.rotation.x+=vel.x; globeGroup.rotation.y+=vel.y;
   prev={x:e.touches[0].clientX,y:e.touches[0].clientY};
 },{passive:true});
+
 window.addEventListener('touchend',()=>{
   isDragging=false; autoTimer=setTimeout(()=>{autoRotate=true;},2500);
 });
+
+// Scroll wheel zooms by moving the camera along Z.
+// Clamped between 1.8 (close) and 5 (far) to keep the globe usable.
 window.addEventListener('wheel',e=>{
   camera.position.z=Math.max(1.8,Math.min(5,camera.position.z+e.deltaY*0.002));
 },{passive:true});
+
+// On resize: update camera aspect ratio and renderer size to match new viewport.
+// Without this the scene stretches/compresses on resize.
 window.addEventListener('resize',()=>{
-  camera.aspect=W()/H(); camera.updateProjectionMatrix(); renderer.setSize(W(),H());
+  camera.aspect=W()/H();
+  camera.updateProjectionMatrix(); // must call this after changing camera properties
+  renderer.setSize(W(),H());
 });
 
+
+// ─────────────────────────────────────────────
+// SCROLL HELPERS
+// ─────────────────────────────────────────────
+
+// Linear interpolation — blends current value toward target each frame.
+// t=0.06 means 6% of the remaining distance is covered per frame.
+// At 60fps this gives a ~0.25s settle time — smooth but responsive.
 function lerp(a,b,t){return a+(b-a)*t;}
+
+// Ease-in-out curve: slow start, fast middle, slow end.
+// Maps 0→1 input to 0→1 output with a smooth S-curve.
+// Used so the globe doesn't snap to its final position.
 function eio(t){return t<0.5?2*t*t:-1+(4-2*t)*t;}
 
+// Converts a normalised screen fraction (-1 to 1) to Three.js world units.
+// The globe lives in world space, not screen pixels — this bridges the two.
+// Derivation: at camera.position.z, the visible half-width = tan(fov/2)*z * aspect
 function worldX(ndc) {
   const fovRad = 55 * Math.PI / 180;
-  const halfH = Math.tan(fovRad/2) * camera.position.z;
-  const halfW = halfH * (W()/H());
+  const halfH = Math.tan(fovRad/2) * camera.position.z; // visible half-height in world units
+  const halfW = halfH * (W()/H());                       // scale by aspect ratio for width
   return ndc * halfW;
 }
 
-let curX = 0, tgtX = 0;
+// Globe position state — target is set by scroll, current lerps toward it each frame
+let curX = 0,   // actual current world-space X (updated in render loop)
+    tgtX = 0;   // desired X set by scroll handler
 
+
+// ─────────────────────────────────────────────
+// DOM REFERENCES — cached once to avoid repeated
+// querySelector calls inside the scroll handler
+// which fires on every scroll event.
+// ─────────────────────────────────────────────
 const canvasEl    = document.getElementById('canvas-container');
 const topnav      = document.getElementById('topnav');
 const navProgress = document.getElementById('nav-progress');
@@ -483,13 +733,16 @@ const coordsEl    = document.getElementById('coords');
 const sectionEls  = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
 const navLinks    = document.querySelectorAll('.nav-link');
 
+// Nav link click handlers — smooth scroll to the target section
 document.querySelectorAll('.nav-link').forEach(btn => {
   btn.addEventListener('click', () => {
-    const el = document.getElementById(btn.dataset.target);
+    const el = document.getElementById(btn.dataset.target); // data-target="s1" etc.
     if (el) el.scrollIntoView({behavior:'smooth'});
   });
 });
 
+// Match progress bar width to nav pill width — called after nav appears
+// and on resize since the pill can reflow.
 function setNavWidth() {
   const ni = document.getElementById('nav-inner');
   if (ni) {
@@ -497,59 +750,107 @@ function setNavWidth() {
   }
 }
 
+
+// ─────────────────────────────────────────────
+// SCROLL HANDLER
+// Fires on every scroll event. Does NOT animate
+// directly — it only sets targets and toggles
+// classes. Actual smooth movement happens in
+// the rAF render loop via lerp().
+// ─────────────────────────────────────────────
 function onScroll() {
   const sy  = window.scrollY;
   const vh  = H();
-  const raw = Math.min(sy / vh, 1);
-  const e   = eio(raw);
+  const raw = Math.min(sy / vh, 1); // normalised 0→1 over the first viewport height
+  const e   = eio(raw);             // eased version for smoother feel
 
+  // Fade out hero text as user begins scrolling.
+  // Multiplying by 4 makes it disappear by raw=0.25 (quarter scroll).
   heroText.style.opacity = String(Math.max(0, 1 - raw * 4));
 
+  // Show nav once user has scrolled ~18% of viewport height
   const pastHero = raw > 0.18;
   topnav.classList.toggle('vis', pastHero);
   navProgress.classList.toggle('vis', pastHero);
   if (pastHero) setNavWidth();
 
+  // Progress bar fill — percentage of total scrollable distance
   const totalScrollable = document.body.scrollHeight - vh;
   navFill.style.width = (totalScrollable > 0 ? (sy / totalScrollable) * 100 : 0) + '%';
 
+  // Set globe target X position. worldX(-0.6 * e) means:
+  // at full scroll (e=1), move globe 60% of the half-screen-width to the left.
+  // The negative value pushes it off the left side of centre.
   tgtX = worldX(-0.6 * e);
 
+  // Add blur class once scroll passes 25% — filters applied in CSS
   canvasEl.classList.toggle('blurred', raw > 0.25);
 
+  // Highlight the nav link matching the section currently in view.
+  // Walks through sections and marks the last one whose top edge
+  // is above 60% of the viewport height.
   let active = -1;
   sectionEls.forEach((el, i) => {
     if (el && el.getBoundingClientRect().top <= vh * 0.6) active = i;
   });
   navLinks.forEach((l,i) => l.classList.toggle('active', i === active));
 
+  // Reveal section elements as they enter the viewport.
+  // getBoundingClientRect().top < vh*0.88 means the element's top
+  // edge is within the bottom 12% of the viewport.
   document.querySelectorAll('.section-label,.section-title,.section-body,.card,.divider,.contact-link').forEach(el => {
     if (el.getBoundingClientRect().top < vh * 0.88) el.classList.add('vis');
   });
 }
 
-window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('scroll', onScroll, {passive:true}); // passive: we never preventDefault
 window.addEventListener('resize', setNavWidth);
 
+
+// ─────────────────────────────────────────────
+// RENDER LOOP
+// requestAnimationFrame schedules this to run
+// before each browser repaint — typically 60fps.
+// This is where globe rotation and position are
+// actually updated. Keeping animation here (not
+// in the scroll handler) ensures smoothness
+// regardless of scroll event frequency.
+// ─────────────────────────────────────────────
 function animate() {
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animate); // schedule next frame before doing work
+
   if (!isDragging) {
+    // Apply inertia decay — velocity falls to ~5% over ~50 frames
     vel.x*=0.95; vel.y*=0.95;
-    globeGroup.rotation.x+=vel.x; globeGroup.rotation.y+=vel.y;
-    if (autoRotate) { globeGroup.rotation.y+=0.0015; globeGroup.rotation.x+=0.0003; }
+    globeGroup.rotation.x+=vel.x;
+    globeGroup.rotation.y+=vel.y;
+
+    // Gentle auto-rotation when user isn't interacting.
+    // Y-axis (horizontal spin) slightly faster than X-axis (tilt) — looks natural.
+    if (autoRotate) {
+      globeGroup.rotation.y+=0.0015;
+      globeGroup.rotation.x+=0.0003;
+    }
   }
 
+  // Lerp globe toward scroll target — this is what makes movement smooth.
+  // tgtX is set in onScroll, curX chases it at 6%/frame.
+  // Separating target-setting (scroll event) from actual movement (rAF)
+  // is the key pattern that prevents jittery scroll-driven animation.
   curX = lerp(curX, tgtX, 0.06);
   globeGroup.position.x = curX;
 
+  // Update coordinate display — convert radians to degrees, clamp to sane range.
+  // These are fake lat/lon derived from rotation angles, not real geography.
   const lon = Math.abs((globeGroup.rotation.y*180/Math.PI)%360).toFixed(2);
   const lat = Math.abs((globeGroup.rotation.x*180/Math.PI)%180).toFixed(2);
   coordsEl.textContent = lat+'° N  '+lon+'° E';
-  renderer.render(scene, camera);
+
+  renderer.render(scene, camera); // draw the scene
 }
 
-animate();
-onScroll();
+animate();      // kick off the render loop
+onScroll();     // run once on load to set initial state (in case page is scrolled on refresh)
 </script>
 </body>
 </html>
