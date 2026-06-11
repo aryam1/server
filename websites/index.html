@@ -5,156 +5,551 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>aryam.dev</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #050508; overflow: hidden; font-family: 'JetBrains Mono', 'Courier New', monospace; color: #e0e0e0; cursor: grab; }
-  body.dragging { cursor: grabbing; }
-  canvas { display: block; }
-  #overlay {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    pointer-events: none;
-  }
-  #name {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 400; letter-spacing: 0.25em; color: #ffffff;
-    opacity: 0; animation: fadein 2s ease 1.2s forwards;
-  }
-  #sub {
-    font-size: clamp(0.65rem, 1.5vw, 0.8rem);
-    letter-spacing: 0.4em; color: #4a9eff;
-    margin-top: 0.75rem; text-transform: uppercase;
-    opacity: 0; animation: fadein 2s ease 1.8s forwards;
-  }
-  #hint {
-    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
-    font-size: 0.6rem; letter-spacing: 0.2em; color: #2a2a3a;
-    opacity: 0; animation: fadein 2s ease 3s forwards;
-    text-transform: uppercase; pointer-events: none;
-  }
-  #coords {
-    position: fixed; bottom: 2rem; right: 2rem;
-    font-size: 0.65rem; letter-spacing: 0.15em; color: #2a2a3a;
-    opacity: 0; animation: fadein 2s ease 2.5s forwards;
-    pointer-events: none;
-  }
-  @keyframes fadein { to { opacity: 1; } }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: #050508;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  color: #e0e0e0;
+  overflow-x: hidden;
+  cursor: grab;
+}
+body.dragging { cursor: grabbing; }
+
+#canvas-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  transition: filter 0.8s ease;
+}
+#canvas-container.blurred {
+  filter: blur(1.5px);
+}
+
+/* ── NAV ── */
+#topnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+#topnav.vis { opacity: 1; pointer-events: auto; }
+
+#nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(5,5,8,0.7);
+  border: 1px solid #0d0d1a;
+  padding: 0 0.25rem;
+}
+
+#nav-logo {
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: #ffffff;
+  padding: 0 1.2rem 0 1rem;
+  border-right: 1px solid #0d0d1a;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nav-link {
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #2a2a4a;
+  padding: 0 1.1rem;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  border: none;
+  background: none;
+  position: relative;
+}
+.nav-link + .nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 1px; height: 10px;
+  background: #0d0d1a;
+}
+.nav-link:hover { color: #666; }
+.nav-link.active { color: #4a9eff; }
+
+#nav-progress {
+  position: fixed;
+  top: 52px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease, width 0s;
+}
+#nav-progress.vis {
+  opacity: 1;
+}
+#nav-progress-track {
+  height: 1px;
+  background: #0d0d1a;
+  width: 100%;
+}
+#nav-progress-fill {
+  height: 100%;
+  background: #4a9eff;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* ── HERO ── */
+#hero {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+#hero-text { text-align: center; }
+#hero-name {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 400; letter-spacing: 0.25em; color: #fff;
+  opacity: 0; animation: fadein 1.5s ease 0.6s forwards;
+}
+#hero-sub {
+  font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+  letter-spacing: 0.4em; color: #4a9eff;
+  margin-top: 0.75rem; text-transform: uppercase;
+  opacity: 0; animation: fadein 1.5s ease 1.2s forwards;
+}
+#scroll-hint {
+  position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  font-size: 0.6rem; letter-spacing: 0.25em; color: #2a2a3a;
+  text-transform: uppercase; pointer-events: none;
+  opacity: 0; animation: fadein 2s ease 3.2s forwards;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+}
+.scroll-line { width:1px; height:24px; background:#2a2a3a; animation: pulse 2s ease-in-out infinite; }
+
+#coords {
+  position: fixed; bottom: 2rem; right: 2rem;
+  font-size: 0.65rem; letter-spacing: 0.15em; color: #1a1a2e;
+  pointer-events: none; z-index: 10;
+  opacity: 0; animation: fadein 2s ease 2.5s forwards;
+}
+
+@keyframes fadein { to { opacity: 1; } }
+@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+/* ── CONTENT ── */
+#content { position: relative; z-index: 2; pointer-events: none; }
+
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 5rem 0;
+  pointer-events: none;
+}
+
+.section-inner {
+  margin-left: auto;
+  width: 44%;
+  padding-right: 5%;
+  pointer-events: auto;
+}
+
+.section-backdrop {
+  background: rgba(5, 5, 10, 0.82);
+  border-left: 1px solid #0d0d1e;
+  padding: 2.5rem 2rem 2.5rem 2rem;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.section-label {
+  font-size: 0.58rem; letter-spacing: 0.4em; color: #4a9eff;
+  text-transform: uppercase; margin-bottom: 0.9rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.section-label.vis { opacity: 1; transform: translateY(0); }
+
+.divider {
+  width: 24px; height: 1px; background: #1a3a5c; margin-bottom: 1.4rem;
+  opacity: 0; transition: opacity 0.6s ease 0.1s, width 0.8s ease 0.1s;
+}
+.divider.vis { opacity: 1; width: 48px; }
+
+.section-title {
+  font-size: clamp(1.3rem, 2.2vw, 1.9rem); font-weight: 400;
+  color: #fff; letter-spacing: 0.05em; margin-bottom: 0.9rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s;
+}
+.section-title.vis { opacity: 1; transform: translateY(0); }
+
+.section-body {
+  font-size: 0.76rem; line-height: 1.9; color: #555; margin-bottom: 1.75rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+}
+.section-body.vis { opacity: 1; transform: translateY(0); }
+
+.cards { display: flex; flex-direction: column; gap: 0.65rem; }
+.card {
+  border: 1px solid #0d0d1a; border-left: 1px solid #1a3a5c;
+  background: rgba(5,5,12,0.6);
+  padding: 0.85rem 1rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease, border-left-color 0.3s, background 0.3s;
+}
+.card:nth-child(1){transition-delay:0.2s}
+.card:nth-child(2){transition-delay:0.3s}
+.card:nth-child(3){transition-delay:0.4s}
+.card:nth-child(4){transition-delay:0.5s}
+.card.vis { opacity: 1; transform: translateY(0); }
+.card:hover { border-left-color: #4a9eff; background: rgba(74,158,255,0.03); }
+
+.card-title { font-size: 0.75rem; color: #d0d0d0; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
+.card-sub { font-size: 0.62rem; color: #222238; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem; }
+.card-desc { font-size: 0.68rem; color: #444460; line-height: 1.7; }
+.tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+.tag { font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: #1a3a5a; border: 1px solid #0d1a2a; padding: 0.15rem 0.4rem; }
+
+.contact-links { display: flex; flex-direction: column; gap: 0.55rem; }
+.contact-link {
+  font-size: 0.7rem; letter-spacing: 0.15em; color: #2a2a4a;
+  text-decoration: none; text-transform: uppercase;
+  display: flex; align-items: center; gap: 0.7rem;
+  opacity: 0; transform: translateX(-8px);
+  transition: opacity 0.5s ease, transform 0.5s ease, color 0.3s;
+}
+.contact-link:nth-child(1){transition-delay:0.2s}
+.contact-link:nth-child(2){transition-delay:0.3s}
+.contact-link:nth-child(3){transition-delay:0.4s}
+.contact-link.vis { opacity: 1; transform: translateX(0); }
+.contact-link:hover { color: #4a9eff; }
+.contact-link::before { content:''; width:14px; height:1px; background:currentColor; flex-shrink:0; }
+
+#footer {
+  position: relative; z-index: 2;
+  padding: 3rem 5% 3rem 0;
+  display: flex; justify-content: flex-end;
+  pointer-events: none;
+}
+#footer-text { font-size: 0.58rem; letter-spacing: 0.2em; color: #111122; text-transform: uppercase; }
 </style>
 </head>
 <body>
-<div id="overlay">
-  <div id="name">aryam.dev</div>
-  <div id="sub">systems · infrastructure · development</div>
+
+<div id="canvas-container"></div>
+
+<div id="topnav">
+  <div id="nav-inner">
+    <div id="nav-logo">aryam</div>
+    <button class="nav-link active" data-target="s1">about</button>
+    <button class="nav-link" data-target="s2">experience</button>
+    <button class="nav-link" data-target="s3">projects</button>
+    <button class="nav-link" data-target="s4">contact</button>
+  </div>
 </div>
-<div id="hint">drag to rotate · scroll to zoom</div>
+<div id="nav-progress">
+  <div id="nav-progress-track"><div id="nav-progress-fill"></div></div>
+</div>
+
 <div id="coords"></div>
+
+<section id="s0" style="height:100vh;position:relative;z-index:2;pointer-events:none;">
+  <div id="hero">
+    <div id="hero-text">
+      <div id="hero-name">aryam.dev</div>
+      <div id="hero-sub">systems · infrastructure · development</div>
+    </div>
+    <div id="scroll-hint">scroll<div class="scroll-line"></div></div>
+  </div>
+</section>
+
+<div id="content">
+  <section class="section" id="s1">
+    <div class="section-inner">
+      <div class="section-backdrop">
+        <div class="section-label">00 / about</div>
+        <div class="divider"></div>
+        <h2 class="section-title">Associate Software Engineer</h2>
+        <p class="section-body">Building AI/LLM tooling at SITA in London — codebase analysis infrastructure using Tree-sitter, Neo4j, and LLM embedding pipelines. Systems-minded, trajectory toward quantitative development.</p>
+        <div class="cards">
+          <div class="card">
+            <div class="card-title">University of Bath — MEng</div>
+            <div class="card-desc">Master's thesis on self-supervised ML and Physics-Informed Neural Networks for 3D transient PDEs. CUDA-accelerated.</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Currently</div>
+            <div class="card-desc">C++ for quant dev and options pricing. Training for Venice Marathon, October 2026.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="s2">
+    <div class="section-inner">
+      <div class="section-backdrop">
+        <div class="section-label">01 / experience</div>
+        <div class="divider"></div>
+        <h2 class="section-title">Where I've worked</h2>
+        <div class="cards">
+          <div class="card">
+            <div class="card-title">SITA</div>
+            <div class="card-sub">Associate SWE · 2024 – present</div>
+            <div class="card-desc">AI/LLM internal tooling. Parallelisation architecture with significant inference speedup. Playwright test migration. Scrum Master for graduate team.</div>
+            <div class="tags"><span class="tag">Python</span><span class="tag">Neo4j</span><span class="tag">Tree-sitter</span><span class="tag">MCP</span><span class="tag">Azure</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="s3">
+    <div class="section-inner">
+      <div class="section-backdrop">
+        <div class="section-label">02 / projects</div>
+        <div class="divider"></div>
+        <h2 class="section-title">Things I've built</h2>
+        <div class="cards">
+          <div class="card">
+            <div class="card-title">Dark Source Base Analyser</div>
+            <div class="card-sub">Codebase intelligence</div>
+            <div class="card-desc">Tree-sitter parsing, Neo4j graph, LLM summarisation pipeline, MCP interface for semantic codebase analysis.</div>
+            <div class="tags"><span class="tag">Python</span><span class="tag">Neo4j</span><span class="tag">Tree-sitter</span><span class="tag">LLM</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">C++ Options Pricer</div>
+            <div class="card-sub">Quantitative finance</div>
+            <div class="card-desc">Black-Scholes and custom neural net in C++. PINN trained on Heston PDE, Python ETL, FastAPI backend.</div>
+            <div class="tags"><span class="tag">C++</span><span class="tag">Python</span><span class="tag">FastAPI</span><span class="tag">PINN</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Homelab — aryam.dev</div>
+            <div class="card-sub">Self-hosted infrastructure</div>
+            <div class="card-desc">Hetzner VPS, Traefik, Cloudflare DNS, Tailscale overlay, Docker Compose under subdomains.</div>
+            <div class="tags"><span class="tag">Traefik</span><span class="tag">Docker</span><span class="tag">Tailscale</span><span class="tag">Cloudflare</span></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Tech News Pipeline</div>
+            <div class="card-sub">Automation</div>
+            <div class="card-desc">Azure Functions newsletter with Ollama headline classifier. Strictly breaking industry news.</div>
+            <div class="tags"><span class="tag">Azure</span><span class="tag">Python</span><span class="tag">Ollama</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="s4">
+    <div class="section-inner">
+      <div class="section-backdrop">
+        <div class="section-label">03 / contact</div>
+        <div class="divider"></div>
+        <h2 class="section-title">Get in touch</h2>
+        <p class="section-body">Open to fintech, quant-adjacent, and big tech engineering roles in London.</p>
+        <div class="contact-links">
+          <a href="https://github.com/aryam1" class="contact-link">github</a>
+          <a href="https://linkedin.com" class="contact-link">linkedin</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="footer"><span id="footer-text">aryam.dev · built with intent</span></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 1000);
-camera.position.z = 2.8;
+const camera = new THREE.PerspectiveCamera(55, W()/H(), 0.1, 1000);
+camera.position.z = 3;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setPixelRatio(devicePixelRatio);
-renderer.setSize(innerWidth, innerHeight);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W(), H());
 renderer.setClearColor(0x050508, 1);
-document.body.appendChild(renderer.domElement);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-const globe = new THREE.Mesh(
+const globeGroup = new THREE.Group();
+scene.add(globeGroup);
+
+const sphere = new THREE.Mesh(
   new THREE.SphereGeometry(1, 36, 24),
   new THREE.MeshBasicMaterial({ color: 0x1a3a5c, wireframe: true, transparent: true, opacity: 0.55 })
 );
-scene.add(globe);
+globeGroup.add(sphere);
 
-const dotGeo = new THREE.BufferGeometry();
-const positions = [];
+const dp = [];
 for (let i = 0; i < 420; i++) {
-  const phi = Math.acos(2 * Math.random() - 1);
-  const theta = 2 * Math.PI * Math.random();
-  positions.push(1.002 * Math.sin(phi) * Math.cos(theta), 1.002 * Math.cos(phi), 1.002 * Math.sin(phi) * Math.sin(theta));
+  const phi = Math.acos(2*Math.random()-1);
+  const theta = 2*Math.PI*Math.random();
+  dp.push(1.002*Math.sin(phi)*Math.cos(theta), 1.002*Math.cos(phi), 1.002*Math.sin(phi)*Math.sin(theta));
 }
-dotGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-globe.add(new THREE.Points(dotGeo, new THREE.PointsMaterial({ color: 0x4a9eff, size: 0.018, transparent: true, opacity: 0.8 })));
+const dg = new THREE.BufferGeometry();
+dg.setAttribute('position', new THREE.Float32BufferAttribute(dp, 3));
+globeGroup.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x4a9eff, size: 0.018, transparent: true, opacity: 0.8 })));
 
-[[Math.PI/2, 0, 0x4a9eff, 0.25], [Math.PI/3, Math.PI/5, 0x1a6aaa, 0.18]].forEach(([rx, ry, color, op]) => {
-  const r = new THREE.Mesh(new THREE.TorusGeometry(1.08, 0.003, 2, 120), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op }));
-  r.rotation.x = rx; r.rotation.y = ry;
-  globe.add(r);
+[[Math.PI/2,0,0x4a9eff,0.25],[Math.PI/3,Math.PI/5,0x1a6aaa,0.18]].forEach(([rx,ry,col,op]) => {
+  const r = new THREE.Mesh(new THREE.TorusGeometry(1.08,0.003,2,120), new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));
+  r.rotation.x=rx; r.rotation.y=ry;
+  globeGroup.add(r);
 });
 
-const starPos = [];
-for (let i = 0; i < 1800; i++) starPos.push((Math.random()-.5)*80, (Math.random()-.5)*80, (Math.random()-.5)*80);
-const starGeo = new THREE.BufferGeometry();
-starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
-scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.04, transparent: true, opacity: 0.35 })));
+const sp = [];
+for (let i = 0; i < 1800; i++) sp.push((Math.random()-.5)*80,(Math.random()-.5)*80,(Math.random()-.5)*80);
+const sg = new THREE.BufferGeometry();
+sg.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
+scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff,size:0.04,transparent:true,opacity:0.35})));
 
-let isDragging = false;
-let prev = { x: 0, y: 0 };
-let vel = { x: 0, y: 0 };
-let autoRotate = true;
-let autoTimer;
+let isDragging=false, prev={x:0,y:0}, vel={x:0,y:0}, autoRotate=true, autoTimer;
+const cvs = renderer.domElement;
 
-function startDrag(x, y) {
-  isDragging = true;
-  autoRotate = false;
-  clearTimeout(autoTimer);
-  prev = { x, y };
-  vel = { x: 0, y: 0 };
+cvs.addEventListener('mousedown', e => {
+  isDragging=true; autoRotate=false; clearTimeout(autoTimer);
+  prev={x:e.clientX,y:e.clientY}; vel={x:0,y:0};
   document.body.classList.add('dragging');
-}
-
-function moveDrag(x, y) {
+});
+window.addEventListener('mousemove', e => {
   if (!isDragging) return;
-  vel.x = (y - prev.y) * 0.005;
-  vel.y = (x - prev.x) * 0.005;
-  globe.rotation.x += vel.x;
-  globe.rotation.y += vel.y;
-  prev = { x, y };
-}
-
-function endDrag() {
-  isDragging = false;
-  document.body.classList.remove('dragging');
-  autoTimer = setTimeout(() => { autoRotate = true; }, 2000);
-}
-
-renderer.domElement.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY));
-window.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
-window.addEventListener('mouseup', endDrag);
-
-renderer.domElement.addEventListener('touchstart', e => startDrag(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-window.addEventListener('touchmove', e => moveDrag(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-window.addEventListener('touchend', endDrag);
-
-window.addEventListener('wheel', e => {
-  camera.position.z = Math.max(1.5, Math.min(5, camera.position.z + e.deltaY * 0.002));
+  vel.x=(e.clientY-prev.y)*0.005; vel.y=(e.clientX-prev.x)*0.005;
+  globeGroup.rotation.x+=vel.x; globeGroup.rotation.y+=vel.y;
+  prev={x:e.clientX,y:e.clientY};
+});
+window.addEventListener('mouseup', () => {
+  isDragging=false; document.body.classList.remove('dragging');
+  autoTimer=setTimeout(()=>{autoRotate=true;},2500);
+});
+cvs.addEventListener('touchstart', e=>{
+  isDragging=true; autoRotate=false; clearTimeout(autoTimer);
+  prev={x:e.touches[0].clientX,y:e.touches[0].clientY}; vel={x:0,y:0};
+},{passive:true});
+window.addEventListener('touchmove', e=>{
+  if(!isDragging)return;
+  vel.x=(e.touches[0].clientY-prev.y)*0.005; vel.y=(e.touches[0].clientX-prev.x)*0.005;
+  globeGroup.rotation.x+=vel.x; globeGroup.rotation.y+=vel.y;
+  prev={x:e.touches[0].clientX,y:e.touches[0].clientY};
+},{passive:true});
+window.addEventListener('touchend',()=>{
+  isDragging=false; autoTimer=setTimeout(()=>{autoRotate=true;},2500);
+});
+window.addEventListener('wheel',e=>{
+  camera.position.z=Math.max(1.8,Math.min(5,camera.position.z+e.deltaY*0.002));
+},{passive:true});
+window.addEventListener('resize',()=>{
+  camera.aspect=W()/H(); camera.updateProjectionMatrix(); renderer.setSize(W(),H());
 });
 
-window.addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+function lerp(a,b,t){return a+(b-a)*t;}
+function eio(t){return t<0.5?2*t*t:-1+(4-2*t)*t;}
+
+function worldX(ndc) {
+  const fovRad = 55 * Math.PI / 180;
+  const halfH = Math.tan(fovRad/2) * camera.position.z;
+  const halfW = halfH * (W()/H());
+  return ndc * halfW;
+}
+
+let curX = 0, tgtX = 0;
+
+const canvasEl    = document.getElementById('canvas-container');
+const topnav      = document.getElementById('topnav');
+const navProgress = document.getElementById('nav-progress');
+const navFill     = document.getElementById('nav-progress-fill');
+const heroText    = document.getElementById('hero-text');
+const coordsEl    = document.getElementById('coords');
+const sectionEls  = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+const navLinks    = document.querySelectorAll('.nav-link');
+
+document.querySelectorAll('.nav-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const el = document.getElementById(btn.dataset.target);
+    if (el) el.scrollIntoView({behavior:'smooth'});
+  });
 });
 
-const coordsEl = document.getElementById('coords');
+function setNavWidth() {
+  const ni = document.getElementById('nav-inner');
+  if (ni) {
+    navProgress.style.width = ni.offsetWidth + 'px';
+  }
+}
+
+function onScroll() {
+  const sy  = window.scrollY;
+  const vh  = H();
+  const raw = Math.min(sy / vh, 1);
+  const e   = eio(raw);
+
+  heroText.style.opacity = String(Math.max(0, 1 - raw * 4));
+
+  const pastHero = raw > 0.18;
+  topnav.classList.toggle('vis', pastHero);
+  navProgress.classList.toggle('vis', pastHero);
+  if (pastHero) setNavWidth();
+
+  const totalScrollable = document.body.scrollHeight - vh;
+  navFill.style.width = (totalScrollable > 0 ? (sy / totalScrollable) * 100 : 0) + '%';
+
+  tgtX = worldX(-0.6 * e);
+
+  canvasEl.classList.toggle('blurred', raw > 0.25);
+
+  let active = -1;
+  sectionEls.forEach((el, i) => {
+    if (el && el.getBoundingClientRect().top <= vh * 0.6) active = i;
+  });
+  navLinks.forEach((l,i) => l.classList.toggle('active', i === active));
+
+  document.querySelectorAll('.section-label,.section-title,.section-body,.card,.divider,.contact-link').forEach(el => {
+    if (el.getBoundingClientRect().top < vh * 0.88) el.classList.add('vis');
+  });
+}
+
+window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('resize', setNavWidth);
 
 function animate() {
   requestAnimationFrame(animate);
   if (!isDragging) {
-    vel.x *= 0.95;
-    vel.y *= 0.95;
-    globe.rotation.x += vel.x;
-    globe.rotation.y += vel.y;
-    if (autoRotate) { globe.rotation.y += 0.0015; globe.rotation.x += 0.0003; }
+    vel.x*=0.95; vel.y*=0.95;
+    globeGroup.rotation.x+=vel.x; globeGroup.rotation.y+=vel.y;
+    if (autoRotate) { globeGroup.rotation.y+=0.0015; globeGroup.rotation.x+=0.0003; }
   }
-  const lon = Math.abs((globe.rotation.y * 180 / Math.PI) % 360).toFixed(2);
-  const lat = Math.abs((globe.rotation.x * 180 / Math.PI) % 180).toFixed(2);
-  coordsEl.textContent = `${lat}° N  ${lon}° E`;
+
+  curX = lerp(curX, tgtX, 0.06);
+  globeGroup.position.x = curX;
+
+  const lon = Math.abs((globeGroup.rotation.y*180/Math.PI)%360).toFixed(2);
+  const lat = Math.abs((globeGroup.rotation.x*180/Math.PI)%180).toFixed(2);
+  coordsEl.textContent = lat+'° N  '+lon+'° E';
   renderer.render(scene, camera);
 }
 
 animate();
+onScroll();
 </script>
 </body>
 </html>
