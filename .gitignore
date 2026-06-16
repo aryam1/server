@@ -23,7 +23,8 @@ docker/qbittorrent/config
 docker/qbittorrent/themes
 
 # Audiobookshelf data 
-docker/audiobooks/audiobookshelf/config/migrations/
+docker/audiobooks/audiobookshelf/config/backups
+docker/audiobooks/audiobookshelf/config/migrations
 docker/audiobooks/audiobookshelf/metadata/
 docker/audiobooks/audiobookshelf/audiobooks/
 docker/audiobooks/audiobookshelf/podcasts/
