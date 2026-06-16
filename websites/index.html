@@ -475,9 +475,9 @@ body.dragging { cursor: grabbing; }
         <h2 class="section-title">Things I've built</h2>
         <div class="cards">
           <div class="card">
-            <div class="card-title">Dark Source Base Analyser</div>
+            <div class="card-title">Codebase Analyser</div>
             <div class="card-sub">Codebase intelligence</div>
-            <div class="card-desc">Tree-sitter parsing, Neo4j graph, LLM summarisation pipeline, MCP interface for semantic codebase analysis.</div>
+            <div class="card-desc">Code parsing, Neo4j graph, LLM summarisation pipeline, MCP interface for semantic codebase analysis.</div>
             <div class="tags"><span class="tag">Python</span><span class="tag">Neo4j</span><span class="tag">Tree-sitter</span><span class="tag">LLM</span></div>
           </div>
           <div class="card">
@@ -491,12 +491,6 @@ body.dragging { cursor: grabbing; }
             <div class="card-sub">Self-hosted infrastructure</div>
             <div class="card-desc">Hetzner VPS, Traefik, Cloudflare DNS, Tailscale overlay, Docker Compose under subdomains.</div>
             <div class="tags"><span class="tag">Traefik</span><span class="tag">Docker</span><span class="tag">Tailscale</span><span class="tag">Cloudflare</span></div>
-          </div>
-          <div class="card">
-            <div class="card-title">Tech News Pipeline</div>
-            <div class="card-sub">Automation</div>
-            <div class="card-desc">Azure Functions newsletter with Ollama headline classifier. Strictly breaking industry news.</div>
-            <div class="tags"><span class="tag">Azure</span><span class="tag">Python</span><span class="tag">Ollama</span></div>
           </div>
         </div>
       </div>
@@ -848,8 +842,12 @@ function animate() {
   renderer.render(scene, camera); 
 }
 
-animate();      
-onScroll();     
+targetScrollY = window.scrollY;
+currentScrollY = window.scrollY; // snap spring to current position on load
+scrollVelocity = 0;
+onScroll();
+animate();
+
 </script>
 </body>
 </html>
