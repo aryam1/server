@@ -1,0 +1,40 @@
+:root {
+  color-scheme: dark;
+
+  --color-bg: #050508;
+  --color-text: #e0e0e0;
+  --color-text-strong: #fff;
+  --color-text-heading: #e2e2ee;
+  --color-text-body: #8f8fa8;
+  --color-text-muted: #a6a6bd;
+  --color-text-subtle: #2a2a4a;
+  --color-text-faint: #7b82a8;
+  --color-text-ghost: #111122;
+  --color-text-coords: #1a1a2e;
+  --color-text-scroll: #8484ad;
+  --color-hero-sub: #c4c6d8;
+
+  --color-accent: #4a9eff;
+  --color-globe-grid: #1a3a5c;
+  --color-globe-ring: #1a6aaa;
+  --color-star: #dbe9ff;
+  --color-tag-text: #74a9e8;
+
+  --color-border: #0d0d1a;
+  --color-border-strong: #0d0d1e;
+  --color-border-tag: #173250;
+  --color-panel-bg: rgba(5, 5, 10, 0.92);
+  --color-card-bg: rgba(8, 10, 18, 0.9);
+  --color-card-hover-bg: rgba(18, 28, 44, 0.94);
+
+  --font-body: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-hero: "Courier New", "JetBrains Mono", monospace;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+
+  --z-canvas: 0;
+  --z-content: 2;
+  --z-coords: 10;
+  --z-nav: 100;
+  --z-paint-guard: 2147483647;
+}

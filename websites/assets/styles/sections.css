@@ -1,0 +1,198 @@
+/* ─────────────────────────────────────────────
+   CONTENT WRAPPER
+   Sits on top of the fixed canvas (z-index: 2).
+   pointer-events: none here so the globe stays
+   draggable through the gaps between sections.
+   Individual interactive children re-enable it.
+───────────────────────────────────────────── */
+#content { position: relative; z-index: var(--z-content); pointer-events: none; }
+
+/* Each portfolio section uses a deliberate two-column composition:
+   the left track is reserved for the globe, the right track is a
+   readable content rail that grows instead of becoming a stubby card stack. */
+.section {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: clamp(36rem, 50vw, 62rem) minmax(560px, 860px);
+  column-gap: clamp(1rem, 2.5vw, 3rem);
+  justify-content: center;
+  align-items: center;
+  padding: 5rem clamp(2rem, 3vw, 4.5rem);
+  overflow: hidden;
+  pointer-events: none;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Content rail — sits in the right track, with pointer-events re-enabled
+   so links/buttons work while the rest of the section stays transparent. */
+.section-inner {
+  grid-column: 2;
+  width: 100%;
+  max-height: calc(100vh - 10rem);
+  margin: 0;
+  padding: 0;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-globe-grid) transparent;
+  pointer-events: auto;
+}
+
+.section-inner.scrollable {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 2.25rem, #000 calc(100% - 2.25rem), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 2.25rem, #000 calc(100% - 2.25rem), transparent 100%);
+}
+
+.section-inner::-webkit-scrollbar { width: 6px; }
+.section-inner::-webkit-scrollbar-track { background: transparent; }
+.section-inner::-webkit-scrollbar-thumb { background: var(--color-globe-grid); }
+
+/* Frosted panel behind section text.
+   Semi-transparent dark bg + backdrop-filter blur creates
+   depth separation from the globe behind it.
+   border-left is the subtle accent line on the left edge. */
+.section-backdrop {
+  width: 100%;
+  background: var(--color-panel-bg);
+  border-left: 1px solid var(--color-border-strong);
+  padding: 2.5rem 2rem 2.5rem 2rem;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px); /* Safari prefix */
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.section-backdrop.vis { opacity: 1; }
+
+@media (max-width: 900px) {
+  .section {
+    grid-template-columns: 1fr;
+    padding: 5rem clamp(1.25rem, 6vw, 3rem);
+  }
+
+  .section-inner {
+    grid-column: 1;
+  }
+}
+
+
+/* ─────────────────────────────────────────────
+   SECTION REVEAL ANIMATIONS
+   Elements start invisible + shifted down 10px.
+   JS adds .vis when the element enters the
+   viewport (via getBoundingClientRect in onScroll).
+   transition handles the actual animation.
+   Each element type has a slightly different
+   delay to create a staggered cascade effect.
+───────────────────────────────────────────── */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem; letter-spacing: 0.18em; color: var(--color-accent);
+  text-transform: uppercase; margin-bottom: 0.9rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.section-label.vis { opacity: 1; transform: translateY(0); }
+
+/* Expands from 24px to 48px width when revealed — subtle animation */
+.divider {
+  width: 24px; height: 1px; background: var(--color-globe-grid); margin-bottom: 1.4rem;
+  opacity: 0; transition: opacity 0.6s ease 0.1s, width 0.8s ease 0.1s;
+}
+.divider.vis { opacity: 1; width: 48px; }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 2.5vw, 2.2rem); font-weight: 500;
+  color: var(--color-text-strong); letter-spacing: 0.01em; margin-bottom: 1rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.6s ease 0.15s, transform 0.6s ease 0.15s;
+}
+.section-title.vis { opacity: 1; transform: translateY(0); }
+
+.section-body {
+  font-size: 1rem; line-height: 1.72; color: var(--color-text-body); margin-bottom: 1.8rem;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+}
+.section-body.vis { opacity: 1; transform: translateY(0); }
+
+
+/* ─────────────────────────────────────────────
+   CARDS
+   Stack vertically with a small gap.
+   Left border accent matches the section divider
+   colour — shifts to blue on hover.
+   Each card has an nth-child transition-delay
+   so they cascade in one by one when revealed.
+───────────────────────────────────────────── */
+.cards { display: flex; flex-direction: column; gap: 0.85rem; }
+.card {
+  border: 1px solid var(--color-border); border-left: 1px solid var(--color-globe-grid);
+  background: var(--color-card-bg);
+  padding: 1rem 1.1rem;
+  opacity: 0; transform: translateY(10px);
+  cursor: default;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+/* Staggered reveal delays — each card waits a little longer */
+.card:nth-child(1){transition-delay:0.2s}
+.card:nth-child(2){transition-delay:0.3s}
+.card:nth-child(3){transition-delay:0.4s}
+.card:nth-child(4){transition-delay:0.5s}
+.card.vis { opacity: 1; transform: translateY(0); }
+/* Only explicitly interactive cards should advertise clickability. */
+a.card,
+button.card,
+.card.is-clickable {
+  cursor: pointer;
+  transition: opacity 0.5s ease, transform 0.5s ease, border-left-color 0.3s, background 0.3s;
+}
+a.card:hover,
+button.card:hover,
+.card.is-clickable:hover {
+  border-left-color: var(--color-accent);
+  background: var(--color-card-hover-bg);
+}
+
+.card-title { font-family: var(--font-display); font-size: 1.08rem; font-weight: 500; color: var(--color-text-heading); letter-spacing: 0.005em; margin-bottom: 0.3rem; }
+.card-sub { font-size: 0.84rem; font-weight: 500; color: var(--color-text-faint); letter-spacing: 0.025em; margin-bottom: 0.5rem; }
+.card-desc { font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.65; }
+
+/* Tech stack tags — minimal pill style */
+.tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+.tag { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--color-tag-text); border: 1px solid var(--color-border-tag); padding: 0.24rem 0.52rem; }
+
+
+/* ─────────────────────────────────────────────
+   CONTACT LINKS
+   Slide in from the left when revealed.
+   ::before pseudo-element draws a short line
+   before each link — a decorative dash prefix.
+   color: currentColor means it inherits the
+   link colour automatically including on hover.
+───────────────────────────────────────────── */
+.contact-links { display: flex; flex-direction: column; gap: 0.55rem; }
+.contact-link {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.15em; color: var(--color-text-subtle);
+  text-decoration: none; text-transform: uppercase;
+  display: flex; align-items: center; gap: 0.7rem;
+  opacity: 0; transform: translateX(-8px);    /* starts shifted left */
+  transition: opacity 0.5s ease, transform 0.5s ease, color 0.3s;
+}
+.contact-link:nth-child(1){transition-delay:0.2s}
+.contact-link:nth-child(2){transition-delay:0.3s}
+.contact-link:nth-child(3){transition-delay:0.4s}
+.contact-link.vis { opacity: 1; transform: translateX(0); }
+.contact-link:hover { color: var(--color-accent); }
+.contact-link::before { content:''; width:14px; height:1px; background:currentColor; flex-shrink:0; }
+
+#footer {
+  position: relative; z-index: var(--z-content);
+  padding: 3rem 5% 3rem 0;
+  display: flex; justify-content: flex-end; /* right-aligned to match section-inner */
+  pointer-events: none;
+}
+#footer-text { font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.2em; color: var(--color-text-ghost); text-transform: uppercase; }
