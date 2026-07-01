@@ -6,39 +6,50 @@
    still receives mouse events for globe drag.
 ───────────────────────────────────────────── */
 #hero {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: var(--z-content);
-  pointer-events: none;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: var(--z-content);
+    pointer-events: none;
 }
+
 #s0 {
-  height: 100vh;
-  position: relative;
-  z-index: var(--z-content);
-  pointer-events: none;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+    height: 100vh;
+    position: relative;
+    z-index: var(--z-content);
+    pointer-events: none;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
 }
-#hero-text { text-align: center; }
+
+#hero-text {
+    text-align: center;
+}
 
 /* clamp() = responsive font: min 2rem, preferred 5vw, max 3.5rem.
    Animates in from opacity 0 with a delay for a staged entrance. */
 #hero-name {
-  font-family: var(--font-hero);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 400; letter-spacing: 0.25em; color: var(--color-text-strong);
-  opacity: 0; animation: fadein 1s ease 0.25s forwards;
+    font-family: var(--font-hero);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    color: var(--color-text-strong);
+    opacity: 0;
+    animation: fadein 1s ease 0.25s forwards;
 }
+
 /* Subtitle fades in slightly after the name */
 #hero-sub {
-  font-family: var(--font-hero);
-  font-size: clamp(0.65rem, 1.5vw, 0.8rem);
-  letter-spacing: 0.4em; color: var(--color-hero-sub);
-  margin-top: 0.75rem; text-transform: uppercase;
-  opacity: 0; animation: fadein 1s ease 0.65s forwards;
+    font-family: var(--font-hero);
+    font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+    letter-spacing: 0.4em;
+    color: var(--color-hero-sub);
+    margin-top: 0.75rem;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadein 1s ease 0.65s forwards;
 }
 
 /* ─────────────────────────────────────────────
@@ -49,13 +60,18 @@
    Updated every frame in the render loop.
 ───────────────────────────────────────────── */
 #coords {
-  position: fixed; top: 1.6rem; right: 2rem;
-  font-family: var(--font-mono);
-  font-size: 0.65rem; letter-spacing: 0.15em; color: var(--color-text-coords);
-  pointer-events: none; z-index: var(--z-coords);
-  opacity: 0; animation: fadein 2s ease 2.5s forwards;
+    position: fixed;
+    top: 1.6rem;
+    right: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--color-text-coords);
+    pointer-events: none;
+    z-index: var(--z-coords);
+    opacity: 0;
+    animation: fadein 2s ease 2.5s forwards;
 }
-
 
 /* ─────────────────────────────────────────────
    KEYFRAME ANIMATIONS
@@ -63,4 +79,8 @@
    "forwards" fill-mode keeps them at opacity 1
    after the animation ends.
 ───────────────────────────────────────────── */
-@keyframes fadein { to { opacity: 1; } }
+@keyframes fadein {
+    to {
+        opacity: 1;
+    }
+}

@@ -1,43 +1,48 @@
 /* Self-hosted typefaces. Paths are relative to this styles directory. */
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("../fonts/jetbrains-mono-400.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+    font-family: "JetBrains Mono";
+    src: url("../fonts/jetbrains-mono-400.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("../fonts/jetbrains-mono-500.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+    font-family: "JetBrains Mono";
+    src: url("../fonts/jetbrains-mono-500.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("../fonts/jetbrains-mono-600.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
+    font-family: "JetBrains Mono";
+    src: url("../fonts/jetbrains-mono-600.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Space Grotesk";
-  src: url("../fonts/space-grotesk-400.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Space Grotesk";
+    src: url("../fonts/space-grotesk-400.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Space Grotesk";
-  src: url("../fonts/space-grotesk-500.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Space Grotesk";
+    src: url("../fonts/space-grotesk-500.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
 }
+
 @font-face {
-  font-family: "Space Grotesk";
-  src: url("../fonts/space-grotesk-600.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
+    font-family: "Space Grotesk";
+    src: url("../fonts/space-grotesk-600.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
 }
