@@ -1,3 +1,4 @@
+/* Central design tokens. CSS uses these directly; theme.js also reads the globe colours from here. */
 :root {
   color-scheme: dark;
 

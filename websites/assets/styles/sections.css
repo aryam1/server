@@ -41,6 +41,7 @@
 .section-inner.scrollable {
   overflow-y: auto;
   scrollbar-gutter: stable;
+  /* So long sections don't appear hard-clipped at the top/bottom of the rail. */
   mask-image: linear-gradient(to bottom, transparent 0, #000 2.25rem, #000 calc(100% - 2.25rem), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 2.25rem, #000 calc(100% - 2.25rem), transparent 100%);
 }

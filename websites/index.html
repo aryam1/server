@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#050508">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>aryam.dev</title>
+<!-- Keep first-paint dark styles inline on <html>/<body>; the rest of the theme loads from split CSS. -->
 <link rel="stylesheet" href="assets/styles/fonts.css">
 <link rel="stylesheet" href="assets/styles/tokens.css">
 <link rel="stylesheet" href="assets/styles/base.css">
@@ -143,6 +144,7 @@
 
 <div id="footer"><span id="footer-text">aryam.dev · built with intent</span></div>
 
+<!-- Script order matters: theme tokens first, then Three.js scene setup, then scroll/navigation loop. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="assets/scripts/theme.js"></script>
 <script src="assets/scripts/globe.js"></script>

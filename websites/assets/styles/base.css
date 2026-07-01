@@ -31,6 +31,7 @@ body {
 /* Swap cursor while mouse button is held down — set via JS on mousedown */
 body.dragging #canvas-container canvas { cursor: grabbing; }
 
+/* Covers the document until the first WebGL frame is ready, preventing a white canvas flash. */
 #paint-guard {
   position: fixed;
   inset: 0;

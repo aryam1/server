@@ -1,3 +1,5 @@
+// Three.js scene setup and globe construction.
+// Depends on three.min.js and theme.js. navigation.js consumes the scene/camera/globe globals below.
 // ─────────────────────────────────────────────
 // THREE.JS SCENE SETUP
 // The three core objects every Three.js scene needs:

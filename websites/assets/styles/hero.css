@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;            /* needed for absolute children (scroll-hint) */
+  position: relative;
   z-index: var(--z-content);
   pointer-events: none;
 }
@@ -62,8 +62,5 @@
    fadein: used on all initially-hidden elements.
    "forwards" fill-mode keeps them at opacity 1
    after the animation ends.
-
-   pulse: the scroll-hint line breathes
-   to draw attention without being distracting.
 ───────────────────────────────────────────── */
 @keyframes fadein { to { opacity: 1; } }

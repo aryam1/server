@@ -1,3 +1,5 @@
+// Shared runtime theme bridge.
+// Loaded before globe.js/navigation.js so JavaScript uses the same CSS tokens as the stylesheets.
 // ─────────────────────────────────────────────
 // UTILITY: live viewport dimensions as functions
 // so they always reflect the current window size

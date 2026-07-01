@@ -1,3 +1,5 @@
+// Section snapping, internal long-section scrolling, nav state, and the render loop.
+// Depends on theme.js/globe.js globals: W, H, renderer, camera, globeGroup, and drag state.
 // ─────────────────────────────────────────────
 // DOM REFERENCES
 // ─────────────────────────────────────────────

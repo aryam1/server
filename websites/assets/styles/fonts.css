@@ -1,3 +1,4 @@
+/* Self-hosted typefaces. Paths are relative to this styles directory. */
 @font-face {
   font-family: "JetBrains Mono";
   src: url("../fonts/jetbrains-mono-400.ttf") format("truetype");
