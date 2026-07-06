@@ -1,7 +1,5 @@
 /* Central design tokens. CSS uses these directly; theme.js also reads the globe colours from here. */
 :root {
-    color-scheme: dark;
-
     --color-bg: #050508;
     --color-text: #e0e0e0;
     --color-text-strong: #fff;

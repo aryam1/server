@@ -252,6 +252,12 @@ window.addEventListener("resize", () => {
 
 // ─────────────────────────────────────────────
 // SCROLL HELPERS (SPRING PHYSICS)
+// Defined here but consumed exclusively by navigation.js's animate() loop.
+// Both scripts run in the same global scope — there is no module boundary,
+// so they share these globals directly.  Any refactor that isolates scripts
+// (e.g. ES modules or script defer/async) must migrate these variables into
+// the consumer module, otherwise the spring-driven camera zoom + globe slide
+// will silently stop working.
 // ─────────────────────────────────────────────
 
 // Ease-in-out curve: slow start, fast middle, slow end.

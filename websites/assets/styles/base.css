@@ -13,7 +13,6 @@
 /* Section-only scrolling. JS moves between snap points one section at a time. */
 html {
     background: var(--color-bg);
-    color-scheme: dark;
     scroll-behavior: smooth;
     scroll-snap-type: y mandatory;
     overscroll-behavior-y: none;
@@ -47,8 +46,8 @@ body.dragging #canvas-container canvas {
 #paint-guard {
     position: fixed;
     inset: 0;
-    z-index: var(--z-paint-guard);
-    background: var(--color-bg);
+    z-index: var(--z-paint-guard, 2147483647);
+    background: var(--color-bg, #050508);
     pointer-events: none;
     animation: paintGuardFallback 1.2s ease forwards;
 }

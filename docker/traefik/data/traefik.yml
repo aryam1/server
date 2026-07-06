@@ -2,6 +2,30 @@ global:
   checkNewVersion: false
   sendAnonymousUsage: false
 
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+  format: json
+  bufferingSize: 100
+  filters:
+    statusCodes:
+      - "200-299"
+      - "400-599"
+    retryAttempts: true
+    minDuration: "10ms"
+  fields:
+    defaultMode: keep
+    headers:
+      defaultMode: drop
+      names:
+        User-Agent: keep
+        Cf-Ipcountry: keep
+
+metrics:
+  prometheus:
+    addRoutersLabels: true
+    addServicesLabels: true
+    entryPoint: metrics
+
 log:
   level: INFO
 
@@ -32,6 +56,9 @@ entryPoints:
     http:
       tls:
         certResolver: cf
+
+  metrics:
+    address: ":8082"
 
 certificatesResolvers:
   cf:

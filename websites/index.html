@@ -7,6 +7,14 @@
     <meta name="theme-color" content="#050508" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>aryam.dev</title>
+    <!-- Critical first-paint: must not depend on external CSS files.
+         Inline block ensures the page is dark even during the brief window
+         where stylesheets are still loading in parallel. -->
+    <style>
+        html, body, #paint-guard, #canvas-container { background: #050508; }
+        #paint-guard { position: fixed; inset: 0; z-index: 2147483647; pointer-events: none; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+    </style>
     <!-- Keep first-paint dark styles inline on <html>/<body>; the rest of the theme loads from split CSS. -->
     <link rel="stylesheet" href="assets/styles/fonts.css" />
     <link rel="stylesheet" href="assets/styles/tokens.css" />
@@ -14,6 +22,12 @@
     <link rel="stylesheet" href="assets/styles/navigation.css" />
     <link rel="stylesheet" href="assets/styles/hero.css" />
     <link rel="stylesheet" href="assets/styles/sections.css" />
+
+    <!-- Script order matters: theme tokens first, then Three.js scene setup, then scroll/navigation loop. -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script defer src="assets/scripts/theme.js"></script>
+    <script defer src="assets/scripts/globe.js"></script>
+    <script defer src="assets/scripts/navigation.js"></script>
 </head>
 
 <body style="background: #050508">
@@ -201,11 +215,6 @@
         <span id="footer-text">aryam.dev · built with intent</span>
     </div>
 
-    <!-- Script order matters: theme tokens first, then Three.js scene setup, then scroll/navigation loop. -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="assets/scripts/theme.js"></script>
-    <script src="assets/scripts/globe.js"></script>
-    <script src="assets/scripts/navigation.js"></script>
 </body>
 
 </html>

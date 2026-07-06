@@ -17,11 +17,18 @@ let touchStartY = 0;
 let touchLastY = 0;
 let touchStartTarget = null;
 let touchScrolledInsideSection = false;
-let wheelGestureActive = false;
-let wheelGestureTimer;
+let mode = null; // "stepped" | "infinite" | null
+let accumulatedDelta = 0;
+let steppedCooldownActive = false;
+let steppedCooldownTimer;
+let infiniteCheckTimer;
+let infiniteIdleTimer;
 const SNAP_DURATION = 420;
-const WHEEL_THRESHOLD = 4;
-const WHEEL_GESTURE_END = 180;
+const MODE_THRESHOLD = 50;
+const STEPPED_COOLDOWN = 300;
+const INFINITE_CHECK_INTERVAL = 100;
+const INFINITE_SNAP_THRESHOLD = 4;
+const INFINITE_IDLE_TIMEOUT = 250;
 const TOUCH_THRESHOLD = 48;
 const INTERNAL_KEY_SCROLL = 120;
 
@@ -110,12 +117,25 @@ function updateScrollableSections() {
     });
 }
 
+function resetMode() {
+    mode = null;
+    accumulatedDelta = 0;
+    clearInterval(infiniteCheckTimer);
+    infiniteCheckTimer = null;
+    clearTimeout(infiniteIdleTimer);
+    clearTimeout(steppedCooldownTimer);
+    steppedCooldownActive = false;
+}
+
 // Nav link click handlers — jump to that snap section
 document.querySelectorAll(".nav-link").forEach((btn) => {
     btn.addEventListener("click", () => {
         const el = document.getElementById(btn.dataset.target);
         const index = snapSections.indexOf(el);
-        if (index !== -1) snapToSection(index);
+        if (index !== -1) {
+            resetMode();
+            snapToSection(index);
+        }
     });
 });
 
@@ -127,24 +147,83 @@ window.addEventListener(
         if (scrollable && canScrollElement(scrollable, e.deltaY)) return;
 
         e.preventDefault();
-        window.clearTimeout(wheelGestureTimer);
-        wheelGestureTimer = window.setTimeout(() => {
-            wheelGestureActive = false;
-        }, WHEEL_GESTURE_END);
 
-        if (wheelGestureActive) return;
-
+        // Internal section scrolling — handle before accumulating for snaps.
         const activeScrollEl = !isSnapping ? activeSectionScrollEl() : null;
         if (!isSnapping && canScrollElement(activeScrollEl, e.deltaY)) {
             activeScrollEl.scrollBy({ top: e.deltaY, behavior: "auto" });
             return;
         }
 
-        if (Math.abs(e.deltaY) < WHEEL_THRESHOLD) return;
+        // ─── DUAL-MODE SCROLL DETECTION ───
+        // Auto-detect input type from event magnitude.
+        // Stepped mice (delta ~100) use cooldown gating.
+        // Infinite wheels (delta ~1-5) use periodic accumulator checks.
+        const absDelta = Math.abs(e.deltaY);
+        const signDelta = Math.sign(e.deltaY);
 
-        wheelGestureActive = true;
-        if (!isSnapping) currentSnapIndex = nearestSnapIndex();
-        snapToSection(requestedSnapIndex(Math.sign(e.deltaY)));
+        if (absDelta >= MODE_THRESHOLD) {
+            // ── STEPPED MODE ──
+            // Single spike or clustered spike: snap immediately on the first
+            // event of each cluster, then block for STEPPED_COOLDOWN ms.
+            // Cooldown resets after the gap between clusters, so the next
+            // cluster gets its own snap.
+            if (mode !== "stepped") {
+                mode = "stepped";
+                accumulatedDelta = 0;
+                clearInterval(infiniteCheckTimer);
+                infiniteCheckTimer = null;
+                clearTimeout(infiniteIdleTimer);
+            }
+
+            if (!steppedCooldownActive) {
+                if (!isSnapping) currentSnapIndex = nearestSnapIndex();
+                snapToSection(requestedSnapIndex(signDelta));
+                steppedCooldownActive = true;
+                clearTimeout(steppedCooldownTimer);
+                steppedCooldownTimer = setTimeout(() => {
+                    steppedCooldownActive = false;
+                }, STEPPED_COOLDOWN);
+            }
+            return;
+        }
+
+        // ── INFINITE MODE ──
+        // Tiny deltas from free-spin wheels or trackpads.  Accumulate
+        // and let the periodic check timer drive snaps.
+        if (mode !== "infinite") {
+            mode = "infinite";
+            accumulatedDelta = 0;
+            steppedCooldownActive = false;
+        }
+
+        // Direction change resets accumulator so reversing feels instant.
+        if (accumulatedDelta !== 0 && signDelta !== Math.sign(accumulatedDelta)) {
+            accumulatedDelta = 0;
+        }
+
+        accumulatedDelta += e.deltaY;
+
+        // Start the periodic check if not already running.
+        if (!infiniteCheckTimer) {
+            infiniteCheckTimer = setInterval(() => {
+                if (Math.abs(accumulatedDelta) >= INFINITE_SNAP_THRESHOLD) {
+                    const dir = Math.sign(accumulatedDelta);
+                    accumulatedDelta = 0;
+                    if (!isSnapping) currentSnapIndex = nearestSnapIndex();
+                    snapToSection(requestedSnapIndex(dir));
+                }
+            }, INFINITE_CHECK_INTERVAL);
+        }
+
+        // Extend idle timeout — stop checking after no events for INFINITE_IDLE_TIMEOUT ms.
+        clearTimeout(infiniteIdleTimer);
+        infiniteIdleTimer = setTimeout(() => {
+            clearInterval(infiniteCheckTimer);
+            infiniteCheckTimer = null;
+            accumulatedDelta = 0;
+            mode = null;
+        }, INFINITE_IDLE_TIMEOUT);
     },
     { passive: false },
 );
@@ -163,6 +242,7 @@ window.addEventListener("keydown", (e) => {
     if (!handledKeys.includes(e.key)) return;
 
     e.preventDefault();
+    resetMode();
     if (!isSnapping) currentSnapIndex = nearestSnapIndex();
     const direction =
         downKeys.includes(e.key) || (e.key === " " && !e.shiftKey)
@@ -209,7 +289,7 @@ window.addEventListener(
 
         const activeScrollEl = activeSectionScrollEl();
         if (canScrollElement(activeScrollEl, stepY)) {
-            e.preventDefault();
+        e.preventDefault();
             activeScrollEl.scrollBy({ top: stepY, behavior: "auto" });
             touchScrolledInsideSection = true;
             touchLastY = currentY;
@@ -223,11 +303,13 @@ window.addEventListener(
 );
 
 window.addEventListener("touchend", (e) => {
-    const touchEndY = e.changedTouches[0].clientY;
+    const touchEndY = e.changedTouches[0]?.clientY;
+    if (touchEndY == null) return;
     const deltaY = touchStartY - touchEndY;
     if (touchScrolledInsideSection) return;
     if (Math.abs(deltaY) < TOUCH_THRESHOLD) return;
 
+    resetMode();
     if (!isSnapping) currentSnapIndex = nearestSnapIndex();
     snapToSection(requestedSnapIndex(Math.sign(deltaY)));
 });
