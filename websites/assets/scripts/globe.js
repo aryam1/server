@@ -69,7 +69,7 @@ for (let i = 0; i < 420; i++) {
 }
 const dg = new THREE.BufferGeometry();
 // Float32BufferAttribute(array, itemSize) — itemSize 3 means xyz per point
-dg.setAttribute("position", new THREE.Float32BufferAttribute(dp, 3));
+dg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(dp), 3));
 globeGroup.add(
     new THREE.Points(
         dg,
@@ -132,7 +132,7 @@ clusterCenters.forEach(([cx, cy, cz], clusterIndex) => {
 });
 
 const sg = new THREE.BufferGeometry();
-sg.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
+sg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(sp), 3));
 // Added directly to scene (not globeGroup) so stars don't rotate with the globe
 scene.add(
     new THREE.Points(
@@ -150,7 +150,7 @@ scene.add(
 const cg = new THREE.BufferGeometry();
 cg.setAttribute(
     "position",
-    new THREE.Float32BufferAttribute(constellationSegments, 3),
+    new THREE.BufferAttribute(new Float32Array(constellationSegments), 3),
 );
 scene.add(
     new THREE.LineSegments(

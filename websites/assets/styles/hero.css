@@ -40,18 +40,6 @@
     animation: fadein 1s ease 0.25s forwards;
 }
 
-/* Subtitle fades in slightly after the name */
-#hero-sub {
-    font-family: var(--font-hero);
-    font-size: clamp(0.65rem, 1.5vw, 0.8rem);
-    letter-spacing: 0.4em;
-    color: var(--color-hero-sub);
-    margin-top: 0.75rem;
-    text-transform: uppercase;
-    opacity: 0;
-    animation: fadein 1s ease 0.65s forwards;
-}
-
 /* ─────────────────────────────────────────────
    COORDINATES DISPLAY
    Top-right corner. Shows lat/lon derived

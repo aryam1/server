@@ -310,8 +310,8 @@ function animate() {
         globeGroup.rotation.y += vel.y;
 
         if (autoRotate) {
-            globeGroup.rotation.y += 0.0015;
-            globeGroup.rotation.x += 0.0003;
+            globeGroup.rotation.y += 0.0008;
+            globeGroup.rotation.x += 0.00015;
         }
     }
 
