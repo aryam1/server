@@ -6,10 +6,7 @@
 const canvasEl = document.getElementById("canvas-container");
 const heroText = document.getElementById("hero-text");
 const coordsEl = document.getElementById("coords");
-const snapSections = ["s0", "s1", "s2", "s3", "s4"].map((id) =>
-    document.getElementById(id),
-);
-const navLinks = document.querySelectorAll(".nav-link");
+const sectionNav = document.getElementById("section-nav");
 let currentSnapIndex = 0;
 let isSnapping = false;
 let snapUnlockTimer;
@@ -36,19 +33,31 @@ function documentTop(el) {
     return el.getBoundingClientRect().top + window.scrollY;
 }
 
+/** Returns live list of section elements: hero + all rendered content sections. */
+function snapSections() {
+    return [...document.querySelectorAll("#s0, #content > section")];
+}
+
+/** Returns live list of nav-link buttons currently in the rail. */
+function navLinks() {
+    return document.querySelectorAll(".nav-link");
+}
+
 function nearestSnapIndex() {
     const y = window.scrollY;
-    return snapSections.reduce((nearest, section, index) => {
+    const sections = snapSections();
+    return sections.reduce((nearest, section, index) => {
         if (!section) return nearest;
         const currentDistance = Math.abs(documentTop(section) - y);
-        const nearestDistance = Math.abs(documentTop(snapSections[nearest]) - y);
+        const nearestDistance = Math.abs(documentTop(sections[nearest]) - y);
         return currentDistance < nearestDistance ? index : nearest;
     }, 0);
 }
 
 function snapToSection(index) {
-    const nextIndex = Math.max(0, Math.min(index, snapSections.length - 1));
-    const target = snapSections[nextIndex];
+    const sections = snapSections();
+    const nextIndex = Math.max(0, Math.min(index, sections.length - 1));
+    const target = sections[nextIndex];
     if (!target || (nextIndex === currentSnapIndex && isSnapping)) return;
 
     const direction = nextIndex - currentSnapIndex;
@@ -76,7 +85,7 @@ function snapToSection(index) {
 function requestedSnapIndex(direction) {
     return Math.max(
         0,
-        Math.min(currentSnapIndex + direction, snapSections.length - 1),
+        Math.min(currentSnapIndex + direction, snapSections().length - 1),
     );
 }
 
@@ -101,7 +110,7 @@ function canScrollElement(el, deltaY) {
 }
 
 function activeSectionScrollEl() {
-    return snapSections[nearestSnapIndex()]?.querySelector(".section-inner");
+    return snapSections()[nearestSnapIndex()]?.querySelector(".section-inner");
 }
 
 function scrollActiveSection(deltaY, amount, behavior = "smooth") {
@@ -127,16 +136,18 @@ function resetMode() {
     steppedCooldownActive = false;
 }
 
-// Nav link click handlers — jump to that snap section
-document.querySelectorAll(".nav-link").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const el = document.getElementById(btn.dataset.target);
-        const index = snapSections.indexOf(el);
-        if (index !== -1) {
-            resetMode();
-            snapToSection(index);
-        }
-    });
+// Nav click — event delegation on the nav rail so dynamically-created
+// buttons work without re-binding.
+sectionNav.addEventListener("click", (e) => {
+    const btn = e.target.closest(".nav-link");
+    if (!btn) return;
+    const el = document.getElementById(btn.dataset.target);
+    const sections = snapSections();
+    const index = sections.indexOf(el);
+    if (index !== -1) {
+        resetMode();
+        snapToSection(index);
+    }
 });
 
 window.addEventListener(
@@ -260,7 +271,7 @@ window.addEventListener("keydown", (e) => {
         snapToSection(requestedSnapIndex(direction));
     }
     if (e.key === "Home") snapToSection(0);
-    if (e.key === "End") snapToSection(snapSections.length - 1);
+    if (e.key === "End") snapToSection(snapSections().length - 1);
 });
 
 window.addEventListener(
@@ -333,10 +344,10 @@ function onScroll() {
 
     // Highlight active nav link
     let active = 0;
-    snapSections.forEach((el, i) => {
+    snapSections().forEach((el, i) => {
         if (el && el.getBoundingClientRect().top <= vh * 0.6) active = i;
     });
-    navLinks.forEach((l, i) => {
+    navLinks().forEach((l, i) => {
         const isActive = i === active;
         l.classList.toggle("active", isActive);
         l.toggleAttribute("aria-current", isActive);
@@ -366,9 +377,6 @@ function onScroll() {
 window.addEventListener("scroll", onScroll, { passive: true });
 window.addEventListener("resize", () => {
     updateScrollableSections();
-});
-document.querySelectorAll(".section-inner").forEach((el) => {
-    el.addEventListener("scroll", onScroll, { passive: true });
 });
 
 function releasePaintGuard() {

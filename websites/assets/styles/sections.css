@@ -232,6 +232,8 @@
 }
 
 /* Only explicitly interactive cards should advertise clickability. */
+a.card { text-decoration: none; color: inherit; }
+
 a.card,
 button.card,
 .card.is-clickable {
@@ -273,6 +275,15 @@ button.card:hover,
     line-height: 1.65;
 }
 
+.card-bullets {
+    margin: 0.45rem 0 0 0;
+    padding-left: 1.1em;
+    list-style-type: disc;
+    font-size: 0.93rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+}
+
 /* Tech stack tags — minimal pill style */
 .tags {
     display: flex;
@@ -283,11 +294,19 @@ button.card:hover,
 
 .tag {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.82rem;
     letter-spacing: 0.04em;
     color: var(--color-tag-text);
     border: 1px solid var(--color-border-tag);
-    padding: 0.24rem 0.52rem;
+    padding: 0.3rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32em;
+}
+
+.tag i {
+    font-size: 0.92rem;
+    color: var(--color-tag-text);
 }
 
 /* ─────────────────────────────────────────────

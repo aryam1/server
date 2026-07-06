@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "name": "aryam.dev",
+    "domain": "aryam.dev"
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "nav": { "icon": "info", "label": "About" },
+      "label": "00 / about",
+      "title": "Associate Software Engineer",
+      "body": "Building AI/LLM tooling at SITA in London — codebase analysis infrastructure using Tree-sitter, Neo4j, and LLM embedding pipelines. Systems-minded, trajectory toward quantitative development.",
+      "cards": [
+        {
+          "title": "University of Bath — MEng",
+          "sub": "Sept 2019 – July 2024",
+          "desc": "MEng Mechanical Engineering. 2:1 Upper Second-Class Honours.",
+          "bullets": [
+            "Master's thesis on Physics Informed Neural Networks for 3D transient heat PDEs in gas turbines",
+            "100× training speedup with CUDA parallelisation, L-BFGS optimiser and mixed precision",
+            "Hyperparameter space studies for optimal architecture and weight initialisation"
+          ],
+          "tags": ["Python", "PyTorch", "CUDA", "Jupyter"]
+        },
+        {
+          "title": "Littleover Community School",
+          "sub": "2014 – 2019",
+          "desc": "A-levels: Mathematics A*, Physics A, Computer Science A. 10 A*–A at GCSE."
+        },
+        {
+          "title": "Currently",
+          "desc": "C++ for quant dev and options pricing.",
+          "bullets": [
+            "Training for Venice Marathon, October 2026"
+          ],
+          "tags": ["C++"]
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "nav": { "icon": "work", "label": "Experience" },
+      "label": "01 / experience",
+      "title": "Where I've worked",
+      "cards": [
+        {
+          "title": "SITA",
+          "sub": "Associate SWE · Sep 2024 – Present",
+          "bullets": [
+            "Designed and built a distributed Python system for large-scale codebase analysis and summarisation, reducing new-hire onboarding time by over 2 weeks",
+            "Architected a task parallelisation scheme distributing compute across 10 systems — 500% inference speedup, 60% reduction in monthly operational costs",
+            "Led an epic to modernise a partner team's testing stack, building a full migration tool from Java Selenium to Python Playwright",
+            "Written unit, regression and E2E test suites in Python with pytest; building automated soak testing tooling with Playwright",
+            "Team lead and Scrum Master for 8 graduate developers — work delegation, mentoring and coordination"
+          ],
+          "tags": ["Python", "Docker", "Linux", "Kubernetes", "Neo4j", "Playwright", "Azure", "Tree-sitter"]
+        },
+        {
+          "title": "PRAX Lindsey Oil Refinery",
+          "sub": "Mechanical Engineer · July 2021 – July 2022",
+          "bullets": [
+            "Assisted in scheduling a £40m project, processing contractor data in Oracle Primavera to ensure accurate and timely execution",
+            "Automated QA data workflows with Python and Pandas, reducing spreadsheet processing time by 2000%",
+            "Built interactive operational dashboards using SAP and PowerBI"
+          ],
+          "tags": ["Python", "Pandas", "NumPy"]
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "nav": { "icon": "code", "label": "Projects" },
+      "label": "02 / projects",
+      "title": "Things I've built",
+      "cards": [
+        {
+          "title": "Codebase Analyser",
+          "sub": "Codebase intelligence",
+          "desc": "Semantic codebase analysis pipeline with MCP interface.",
+          "bullets": [
+            "Tree-sitter AST parser for 12+ languages",
+            "Neo4j knowledge graph with LLM embeddings",
+            "MCP server for real-time IDE integration"
+          ],
+          "tags": ["Python", "Neo4j", "Tree-sitter", "LLM"],
+          "url": "https://github.com/aryam1/codebase-analyser"
+        },
+        {
+          "title": "PINN Modeller — Master's Thesis",
+          "sub": "Jan 2024 – Apr 2024",
+          "desc": "Physics Informed Neural Network for 3D transient heat PDEs in gas turbines.",
+          "bullets": [
+            "Achieved highly accurate simulations 10× faster than traditional numerical methods",
+            "100× training speedup with CUDA parallelisation, L-BFGS, gradient clipping and mixed precision",
+            "Hyperparameter space studies for optimal architecture, activation functions and weight initialisation"
+          ],
+          "tags": ["PyTorch", "CUDA", "Jupyter", "Python"],
+          "url": "https://github.com/aryam1/HeatPINN"
+        },
+        {
+          "title": "C++ Options Pricer",
+          "sub": "In Progress · Apr 2026 – Present",
+          "desc": "Low-latency options pricer with a custom neural network library in C++.",
+          "bullets": [
+            "Black–Scholes model with concurrent architecture for reliability",
+            "Custom-built C++23 neural network library for Physics Informed Neural Networks",
+            "Python ETL pipeline with FastAPI backend"
+          ],
+          "tags": ["C++", "Python", "FastAPI"],
+          "url": "https://github.com/aryam1/options-pricer"
+        },
+        {
+          "title": "Homelab — aryam.dev",
+          "sub": "Self-hosted infrastructure",
+          "bullets": [
+            "Hetzner VPS with Docker Compose and Traefik reverse proxy",
+            "Tailscale overlay for private services",
+            "Cloudflare DNS with Let's Encrypt wildcard certs"
+          ],
+          "tags": ["Traefik", "Docker", "Tailscale", "Cloudflare"]
+        },
+        {
+          "title": "Discord Bot — Calypso",
+          "sub": "2022 – Present",
+          "desc": "Async event-driven Node.js application serving 1000+ users.",
+          "bullets": [
+            "Containerised with Docker, backed by a MySQL database",
+            "Fuzzy matching and string tokenization for real-time query processing",
+            "REST API integrations, interactive GUI components and user management tooling"
+          ],
+          "tags": ["Node.js", "Docker", "MySQL"],
+          "url": "https://github.com/aryam1/Calypso"
+        },
+        {
+          "title": "Numerical Modelling Projects",
+          "sub": "Sep 2020 – Dec 2023",
+          "desc": "MATLAB solvers for PDEs across heat transfer, orbital mechanics and drug absorption.",
+          "bullets": [
+            "Computer vision pipeline to extract graph data from NASA publications for 3D heat profile modelling",
+            "Vectorisation and multi-threading for accelerated computation",
+            "Interactive GUIs for running simulations and visualising results without editing code"
+          ],
+          "tags": ["MATLAB", "Python"],
+          "url": "https://github.com/aryam1/Space-Shuttle-Simulator"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "nav": { "icon": "at", "label": "Contact" },
+      "label": "03 / contact",
+      "title": "Get in touch",
+      "body": "Open to fintech, quant-adjacent, and big tech engineering roles in London.",
+      "links": [
+        { "label": "github", "url": "https://github.com/aryam1" },
+        { "label": "linkedin", "url": "https://linkedin.com/in/aryamukherjee" }
+      ]
+    }
+  ],
+  "footer": {
+    "text": "aryam.dev · built with intent"
+  }
+}

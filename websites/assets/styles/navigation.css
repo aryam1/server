@@ -53,18 +53,6 @@
     line-height: 1;
 }
 
-.nav-link-work svg {
-    width: 1.3rem;
-    height: 1.3rem;
-    stroke-width: 2;
-}
-
-.nav-link-projects svg {
-    width: 1.3rem;
-    height: 1.3rem;
-    stroke-width: 2;
-}
-
 .nav-link:hover {
     color: var(--color-text-strong);
 }

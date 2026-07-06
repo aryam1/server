@@ -22,12 +22,14 @@
     <link rel="stylesheet" href="assets/styles/navigation.css" />
     <link rel="stylesheet" href="assets/styles/hero.css" />
     <link rel="stylesheet" href="assets/styles/sections.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
 
     <!-- Script order matters: theme tokens first, then Three.js scene setup, then scroll/navigation loop. -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script defer src="assets/scripts/theme.js"></script>
     <script defer src="assets/scripts/globe.js"></script>
     <script defer src="assets/scripts/navigation.js"></script>
+    <script defer src="assets/scripts/render.js"></script>
 </head>
 
 <body style="background: #050508">
@@ -36,42 +38,7 @@
     <!-- Three.js renders into this div. The canvas is appended by JS. -->
     <div id="canvas-container"></div>
 
-    <nav id="section-nav" aria-label="Section navigation">
-        <button class="nav-link active" data-target="s0" aria-label="Home">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 11.5 12 5l8 6.5" />
-                <path d="M6.5 10.5V19h11v-8.5" />
-            </svg>
-        </button>
-        <div class="nav-spacer" aria-hidden="true"></div>
-        <button class="nav-link" data-target="s1" aria-label="About">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="8" />
-                <path d="M12 11v5" />
-                <path d="M12 8h.01" />
-            </svg>
-        </button>
-        <div class="nav-spacer" aria-hidden="true"></div>
-        <button class="nav-link nav-link-work" data-target="s2" aria-label="Experience">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="4" y="7.5" width="16" height="11" rx="1.5" />
-                <path d="M9 7.5V5.5h6v2" />
-                <path d="M4 12h16" />
-            </svg>
-        </button>
-        <div class="nav-spacer" aria-hidden="true"></div>
-        <button class="nav-link nav-link-projects" data-target="s3" aria-label="Projects">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="4" y="6" width="16" height="12" rx="1.5" />
-                <path d="m8 10 2.5 2L8 14" />
-                <path d="M13 14h3" />
-            </svg>
-        </button>
-        <div class="nav-spacer" aria-hidden="true"></div>
-        <button class="nav-link" data-target="s4" aria-label="Contact">
-            <span class="nav-text-icon" aria-hidden="true">@</span>
-        </button>
-    </nav>
+    <nav id="section-nav" aria-label="Section navigation"></nav>
 
     <div id="coords"></div>
 
@@ -85,134 +52,10 @@
         </div>
     </section>
 
-    <div id="content">
-        <section class="section" id="s1">
-            <div class="section-inner">
-                <div class="section-backdrop">
-                    <div class="section-label">00 / about</div>
-                    <div class="divider"></div>
-                    <h2 class="section-title">Associate Software Engineer</h2>
-                    <p class="section-body">
-                        Building AI/LLM tooling at SITA in London — codebase analysis
-                        infrastructure using Tree-sitter, Neo4j, and LLM embedding
-                        pipelines. Systems-minded, trajectory toward quantitative
-                        development.
-                    </p>
-                    <div class="cards">
-                        <div class="card">
-                            <div class="card-title">University of Bath — MEng</div>
-                            <div class="card-desc">
-                                Master's thesis on self-supervised ML and Physics-Informed
-                                Neural Networks for 3D transient PDEs. CUDA-accelerated.
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-title">Currently</div>
-                            <div class="card-desc">
-                                C++ for quant dev and options pricing. Training for Venice
-                                Marathon, October 2026.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="s2">
-            <div class="section-inner">
-                <div class="section-backdrop">
-                    <div class="section-label">01 / experience</div>
-                    <div class="divider"></div>
-                    <h2 class="section-title">Where I've worked</h2>
-                    <div class="cards">
-                        <div class="card">
-                            <div class="card-title">SITA</div>
-                            <div class="card-sub">Associate SWE · 2024 – present</div>
-                            <div class="card-desc">
-                                AI/LLM internal tooling. Parallelisation architecture with
-                                significant inference speedup. Playwright test migration.
-                                Scrum Master for graduate team.
-                            </div>
-                            <div class="tags">
-                                <span class="tag">Python</span><span class="tag">Neo4j</span><span
-                                    class="tag">Tree-sitter</span><span class="tag">MCP</span><span
-                                    class="tag">Azure</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="s3">
-            <div class="section-inner">
-                <div class="section-backdrop">
-                    <div class="section-label">02 / projects</div>
-                    <div class="divider"></div>
-                    <h2 class="section-title">Things I've built</h2>
-                    <div class="cards">
-                        <div class="card is-clickable">
-                            <div class="card-title">Codebase Analyser</div>
-                            <div class="card-sub">Codebase intelligence</div>
-                            <div class="card-desc">
-                                Code parsing, Neo4j graph, LLM summarisation pipeline, MCP
-                                interface for semantic codebase analysis.
-                            </div>
-                            <div class="tags">
-                                <span class="tag">Python</span><span class="tag">Neo4j</span><span
-                                    class="tag">Tree-sitter</span><span class="tag">LLM</span>
-                            </div>
-                        </div>
-                        <div class="card is-clickable">
-                            <div class="card-title">C++ Options Pricer</div>
-                            <div class="card-sub">Quantitative finance</div>
-                            <div class="card-desc">
-                                Black-Scholes and custom neural net in C++. PINN trained on
-                                Heston PDE, Python ETL, FastAPI backend.
-                            </div>
-                            <div class="tags">
-                                <span class="tag">C++</span><span class="tag">Python</span><span
-                                    class="tag">FastAPI</span><span class="tag">PINN</span>
-                            </div>
-                        </div>
-                        <div class="card is-clickable">
-                            <div class="card-title">Homelab — aryam.dev</div>
-                            <div class="card-sub">Self-hosted infrastructure</div>
-                            <div class="card-desc">
-                                Hetzner VPS, Traefik, Cloudflare DNS, Tailscale overlay,
-                                Docker Compose under subdomains.
-                            </div>
-                            <div class="tags">
-                                <span class="tag">Traefik</span><span class="tag">Docker</span><span
-                                    class="tag">Tailscale</span><span class="tag">Cloudflare</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="s4">
-            <div class="section-inner">
-                <div class="section-backdrop">
-                    <div class="section-label">03 / contact</div>
-                    <div class="divider"></div>
-                    <h2 class="section-title">Get in touch</h2>
-                    <p class="section-body">
-                        Open to fintech, quant-adjacent, and big tech engineering roles in
-                        London.
-                    </p>
-                    <div class="contact-links">
-                        <a href="https://github.com/aryam1" class="contact-link">github</a>
-                        <a href="https://linkedin.com/in/aryamukherjee" class="contact-link">linkedin</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+    <div id="content"></div>
 
     <div id="footer">
-        <span id="footer-text">aryam.dev · built with intent</span>
+        <span id="footer-text"></span>
     </div>
 
 </body>
