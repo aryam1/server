@@ -7,14 +7,13 @@
     {
       "id": "s1",
       "nav": { "icon": "info", "label": "About" },
-      "label": "00 / about",
       "title": "Associate Software Engineer",
-      "body": "Building AI/LLM tooling at SITA in London — codebase analysis infrastructure using Tree-sitter, Neo4j, and LLM embedding pipelines. Systems-minded, trajectory toward quantitative development.",
+      "body": "Building backend products and AI tooling at SITA in London for the past 2 years, experienced in Python, Azure Cloud, CI/CD, amongst others. Also training for the Venice Marathon later this year.",
       "cards": [
         {
           "title": "University of Bath — MEng",
           "sub": "Sept 2019 – July 2024",
-          "desc": "MEng Mechanical Engineering. 2:1 Upper Second-Class Honours.",
+          "desc": "MEng Mechanical Engineering. \n2:1 Upper Second-Class Honours.",
           "bullets": [
             "Master's thesis on Physics Informed Neural Networks for 3D transient heat PDEs in gas turbines",
             "100× training speedup with CUDA parallelisation, L-BFGS optimiser and mixed precision",
