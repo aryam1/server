@@ -60,18 +60,6 @@ function snapToSection(index) {
     const target = sections[nextIndex];
     if (!target || (nextIndex === currentSnapIndex && isSnapping)) return;
 
-    const direction = nextIndex - currentSnapIndex;
-    const targetScrollEl = target.querySelector(".section-inner");
-    if (
-        targetScrollEl &&
-        targetScrollEl.scrollHeight > targetScrollEl.clientHeight + 1
-    ) {
-        if (direction > 0) targetScrollEl.scrollTop = 0;
-        if (direction < 0)
-            targetScrollEl.scrollTop =
-                targetScrollEl.scrollHeight - targetScrollEl.clientHeight;
-    }
-
     currentSnapIndex = nextIndex;
     isSnapping = true;
     window.clearTimeout(snapUnlockTimer);
@@ -159,10 +147,10 @@ window.addEventListener(
 
         e.preventDefault();
 
-        // Internal section scrolling — handle before accumulating for snaps.
-        const activeScrollEl = !isSnapping ? activeSectionScrollEl() : null;
-        if (!isSnapping && canScrollElement(activeScrollEl, e.deltaY)) {
-            activeScrollEl.scrollBy({ top: e.deltaY, behavior: "auto" });
+        // Internal section scrolling — only when mouse is over a scrollable section.
+        const hoveredScrollEl = e.target.closest(".section-inner.scrollable");
+        if (!isSnapping && hoveredScrollEl && canScrollElement(hoveredScrollEl, e.deltaY)) {
+            hoveredScrollEl.scrollBy({ top: e.deltaY, behavior: "auto" });
             return;
         }
 

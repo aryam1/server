@@ -39,7 +39,6 @@
     {
       "id": "s2",
       "nav": { "icon": "work", "label": "Experience" },
-      "label": "01 / experience",
       "title": "Where I've worked",
       "cards": [
         {
@@ -69,7 +68,6 @@
     {
       "id": "s3",
       "nav": { "icon": "code", "label": "Projects" },
-      "label": "02 / projects",
       "title": "Things I've built",
       "cards": [
         {
@@ -147,7 +145,6 @@
     {
       "id": "s4",
       "nav": { "icon": "at", "label": "Contact" },
-      "label": "03 / contact",
       "title": "Get in touch",
       "body": "Open to fintech, quant-adjacent, and big tech engineering roles in London.",
       "links": [

@@ -33,6 +33,9 @@ const TAG_ICONS = {
     "Linux":        "devicon-linux-plain",
 };
 
+const scrollFadeTop = `<div class="scroll-fade scroll-fade-top"></div>`;
+const scrollFadeBot = `<div class="scroll-fade scroll-fade-bot"></div>`;
+
 // ── Render helpers ──
 
 function renderNavButton(target, icon, label) {
@@ -49,15 +52,16 @@ function renderTag(tag) {
     return `<span class="tag">${tag}</span>`;
 }
 
-function renderCard(card) {
+function renderCard(card, staggerDelay) {
     const hasUrl = card.url != null;
     const tag = hasUrl ? "a" : "div";
     const href = hasUrl
         ? ` href="${card.url}" target="_blank" rel="noopener"`
         : "";
     const cls = hasUrl ? "card is-clickable" : "card";
+    const delay = staggerDelay != null ? ` style="transition-delay:${staggerDelay.toFixed(1)}s"` : "";
 
-    let html = `<${tag} class="${cls}"${href}>`;
+    let html = `<${tag} class="${cls}"${delay}${href}>`;
     html += `<div class="card-title">${card.title}</div>`;
     if (card.sub) html += `<div class="card-sub">${card.sub}</div>`;
     if (card.desc) html += `<div class="card-desc">${card.desc}</div>`;
@@ -78,14 +82,13 @@ function renderCard(card) {
 function renderSection(section) {
     let html = `<div class="section-inner"><div class="section-backdrop">`;
     if (section.label) html += `<div class="section-label">${section.label}</div>`;
-    html += `<div class="divider"></div>`;
     if (section.title) html += `<h2 class="section-title">${section.title}</h2>`;
     if (section.body) html += `<p class="section-body">${section.body}</p>`;
 
     if (section.cards && section.cards.length) {
-        html += `<div class="cards">`;
-        section.cards.forEach(function (c) { html += renderCard(c); });
-        html += `</div>`;
+        html += `${scrollFadeTop}<div class="cards">`;
+        section.cards.forEach(function (c, i) { html += renderCard(c, 0.2 + i * 0.05); });
+        html += `</div>${scrollFadeBot}`;
     }
 
     if (section.links && section.links.length) {
