@@ -87,7 +87,7 @@ function renderSection(section) {
 
     if (section.cards && section.cards.length) {
         html += `${scrollFadeTop}<div class="cards">`;
-        section.cards.forEach(function (c, i) { html += renderCard(c, 0.2 + i * 0.05); });
+        section.cards.forEach(function (c, i) { html += renderCard(c, 0.05 + i * 0.03); });
         html += `</div>${scrollFadeBot}`;
     }
 
@@ -145,6 +145,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (typeof onScroll === "function") onScroll();
             document.querySelectorAll(".section-inner").forEach(function (el) {
                 el.addEventListener("scroll", onScroll, { passive: true });
+                el.addEventListener("scroll", function () {
+                    if (el.scrollTop > 0) el.classList.add("has-scrolled");
+                }, { once: true });
             });
         })
         .catch(function (err) {

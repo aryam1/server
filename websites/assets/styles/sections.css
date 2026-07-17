@@ -45,6 +45,11 @@
 .section-inner.scrollable {
     overflow-y: auto;
     scrollbar-gutter: stable;
+    scrollbar-color: transparent transparent;
+}
+
+.section-inner.scrollable.has-scrolled:hover {
+    scrollbar-color: rgba(26, 58, 92, 0.4) transparent;
 }
 
 .section-inner::-webkit-scrollbar {
@@ -56,7 +61,12 @@
 }
 
 .section-inner::-webkit-scrollbar-thumb {
-    background: var(--color-globe-grid);
+    background: transparent;
+    transition: background 0.3s;
+}
+
+.section-inner.scrollable.has-scrolled:hover::-webkit-scrollbar-thumb {
+    background: rgba(26, 58, 92, 0.4);
 }
 
 /* Sticky gradient overlays create a fade effect at the edges
