@@ -34,7 +34,8 @@
           ],
           "tags": ["C++"]
         }
-      ]
+      ],
+      "button": { "label": "Download Resume", "url": "/assets/resume.pdf" }
     },
     {
       "id": "s2",
@@ -70,18 +71,6 @@
       "nav": { "icon": "code", "label": "Projects" },
       "title": "Things I've built",
       "cards": [
-        {
-          "title": "Codebase Analyser",
-          "sub": "Codebase intelligence",
-          "desc": "Semantic codebase analysis pipeline with MCP interface.",
-          "bullets": [
-            "Tree-sitter AST parser for 12+ languages",
-            "Neo4j knowledge graph with LLM embeddings",
-            "MCP server for real-time IDE integration"
-          ],
-          "tags": ["Python", "Neo4j", "Tree-sitter", "LLM"],
-          "url": "https://github.com/aryam1/codebase-analyser"
-        },
         {
           "title": "PINN Modeller — Master's Thesis",
           "sub": "Jan 2024 – Apr 2024",

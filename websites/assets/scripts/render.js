@@ -91,6 +91,10 @@ function renderSection(section) {
         html += `</div>${scrollFadeBot}`;
     }
 
+    if (section.button) {
+        html += `<a href="${section.button.url}" class="section-button" target="_blank" rel="noopener">${section.button.label}</a>`;
+    }
+
     if (section.links && section.links.length) {
         html += `<div class="contact-links">`;
         section.links.forEach(function (l) {

@@ -5,7 +5,6 @@
 // ─────────────────────────────────────────────
 const canvasEl = document.getElementById("canvas-container");
 const heroText = document.getElementById("hero-text");
-const coordsEl = document.getElementById("coords");
 const sectionNav = document.getElementById("section-nav");
 let currentSnapIndex = 0;
 let isSnapping = false;
@@ -112,6 +111,7 @@ function updateScrollableSections() {
     document.querySelectorAll(".section-inner").forEach((el) => {
         el.classList.toggle("scrollable", el.scrollHeight > el.clientHeight + 1);
     });
+    updateScrollFades();
 }
 
 function resetMode() {
@@ -351,7 +351,7 @@ function onScroll() {
     // Reveal section elements while they are in view, and hide them again when they leave.
     document
         .querySelectorAll(
-            ".section-label,.section-title,.section-body,.card,.divider,.contact-link",
+            ".section-label,.section-title,.section-body,.card,.divider,.contact-link,.section-button",
         )
         .forEach((el) => {
             const rect = el.getBoundingClientRect();
@@ -360,6 +360,19 @@ function onScroll() {
                 rect.top < vh * 0.88 && rect.bottom > vh * 0.12,
             );
         });
+
+    updateScrollFades();
+}
+
+function updateScrollFades() {
+    document.querySelectorAll(".section-inner.scrollable").forEach((el) => {
+        const topFade = el.querySelector(".scroll-fade-top");
+        const botFade = el.querySelector(".scroll-fade-bot");
+        const atTop = el.scrollTop <= 4;
+        const atBot = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
+        if (topFade) topFade.classList.toggle("off", atTop);
+        if (botFade) botFade.classList.toggle("off", atBot);
+    });
 }
 
 window.addEventListener("scroll", onScroll, { passive: true });
@@ -423,15 +436,6 @@ function animate() {
     const dip = Math.sin(Math.PI * e) * -0.25; // negative = downward
     const settle = e * -0.1; // slight upward lift at full size
     globeGroup.position.y = dip + settle;
-
-    // Update coordinate display
-    const lon = Math.abs(((globeGroup.rotation.y * 180) / Math.PI) % 360).toFixed(
-        2,
-    );
-    const lat = Math.abs(((globeGroup.rotation.x * 180) / Math.PI) % 180).toFixed(
-        2,
-    );
-    coordsEl.textContent = lat + "° N  " + lon + "° E";
 
     renderer.render(scene, camera);
 }
