@@ -6,6 +6,75 @@
 const canvasEl = document.getElementById("canvas-container");
 const heroText = document.getElementById("hero-text");
 const sectionNav = document.getElementById("section-nav");
+
+// DEBUG SCROLL OVERLAY — garish and fixed, remove before prod.
+(function () {
+    const d = document.createElement("div");
+    d.id = "scroll-debug";
+    d.innerHTML = [
+        '<div class="sd-head">SCROLL DEBUG</div>',
+        '<div class="sd-row"><span class="sd-label">mode</span><span id="sd-mode">—</span></div>',
+        '<div class="sd-row"><span class="sd-label">acc</span><span id="sd-acc">0.0</span></div>',
+        '<div class="sd-row"><span class="sd-label">snaps</span><span id="sd-snaps">0</span></div>',
+        '<div class="sd-row"><span class="sd-label">ev/s</span><span id="sd-rate">0</span></div>',
+        '<div class="sd-bar-track"><div class="sd-bar-fill" id="sd-bar"></div></div>',
+    ].join("");
+    document.body.appendChild(d);
+    const style = document.createElement("style");
+    style.textContent = [
+        "#scroll-debug {",
+        "  position: fixed; bottom: 0; right: 0; z-index: 99999;",
+        "  background: rgba(0,0,0,0.95); color: #0f0;",
+        "  font: 11px 'JetBrains Mono', monospace; padding: 8px 12px;",
+        "  border-left: 3px solid #ff0; border-top: 3px solid #ff0;",
+        "  min-width: 180px; pointer-events: none;",
+        "}",
+        "#scroll-debug.flash { background: rgba(255,255,0,0.35); }",
+        "#scroll-debug.flash-stepped { background: rgba(0,120,255,0.55); }",
+        ".sd-head { color: #ff0; font-weight: 700; margin-bottom: 4px; }",
+        ".sd-row { display: flex; justify-content: space-between; margin: 1px 0; }",
+        ".sd-label { color: #888; }",
+        ".sd-bar-track { margin-top: 4px; height: 6px; background: #222; }",
+        ".sd-bar-fill { height: 100%; width: 0%; background: #f0f; transition: width 0.05s; }",
+    ].join("\n");
+    document.head.appendChild(style);
+})();
+let sdSnaps = 0;
+let sdEvents = 0;
+let sdLastTime = performance.now();
+const SD_RATE_WINDOW = 300;
+
+function sdUpdate(modeLabel, acc, snapped) {
+    const el = document.getElementById("scroll-debug");
+    if (!el) return;
+    sdEvents++;
+    const now = performance.now();
+    if (now - sdLastTime > SD_RATE_WINDOW) {
+        sdEvents = 0;
+        sdLastTime = now;
+    }
+    const dt = (now - sdLastTime) / 1000;
+    const rate = dt > 0 ? sdEvents / dt : 0;
+    if (snapped) sdSnaps++;
+
+    document.getElementById("sd-mode").textContent = modeLabel || "—";
+    document.getElementById("sd-acc").textContent = acc.toFixed(1);
+    document.getElementById("sd-snaps").textContent = sdSnaps;
+    document.getElementById("sd-rate").textContent = Math.round(rate);
+
+    const isStepped = modeLabel === "stepped";
+    const barEl = document.getElementById("sd-bar");
+    const pct = isStepped ? 0 : Math.min(Math.abs(acc) / 30 * 100, 100);
+    barEl.style.width = pct + "%";
+    barEl.style.background = isStepped ? "#08f" : pct >= 100 ? "#f00" : "#f0f";
+
+    el.classList.add(isStepped ? "flash-stepped" : "flash");
+    clearTimeout(el._sdTimer);
+    el._sdTimer = setTimeout(() => {
+        el.classList.remove("flash", "flash-stepped");
+    }, 120);
+}
+
 let currentSnapIndex = 0;
 let isSnapping = false;
 let snapUnlockTimer;
@@ -178,11 +247,14 @@ window.addEventListener(
             if (!steppedCooldownActive) {
                 if (!isSnapping) currentSnapIndex = nearestSnapIndex();
                 snapToSection(requestedSnapIndex(signDelta));
+                sdUpdate("stepped", 0, true);
                 steppedCooldownActive = true;
                 clearTimeout(steppedCooldownTimer);
                 steppedCooldownTimer = setTimeout(() => {
                     steppedCooldownActive = false;
                 }, STEPPED_COOLDOWN);
+            } else {
+                sdUpdate("stepped", 0, false);
             }
             return;
         }
@@ -202,6 +274,7 @@ window.addEventListener(
         }
 
         accumulatedDelta += e.deltaY;
+        sdUpdate("infinite", accumulatedDelta, false);
 
         // Start the periodic check if not already running.
         if (!infiniteCheckTimer) {
@@ -211,6 +284,7 @@ window.addEventListener(
                     accumulatedDelta = 0;
                     if (!isSnapping) currentSnapIndex = nearestSnapIndex();
                     snapToSection(requestedSnapIndex(dir));
+                    sdUpdate("infinite", 0, true);
                 }
             }, INFINITE_CHECK_INTERVAL);
         }
