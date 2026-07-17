@@ -74,7 +74,7 @@ globeGroup.add(
     new THREE.Points(
         dg,
         new THREE.PointsMaterial({
-            color: THEME.accent,
+            color: THEME.star,
             size: 0.018,
             transparent: true,
             opacity: 0.8,
@@ -87,7 +87,7 @@ globeGroup.add(
 // TorusGeometry(radius, tubeRadius, radialSegments, tubularSegments)
 // tubeRadius 0.003 makes them hairline thin.
 [
-    [Math.PI / 2, 0, THEME.accent, 0.25],
+    [Math.PI / 2, 0, THEME.globeRing, 0.25],
     [Math.PI / 3, Math.PI / 5, THEME.globeRing, 0.18],
 ].forEach(([rx, ry, col, op]) => {
     const r = new THREE.Mesh(

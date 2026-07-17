@@ -104,5 +104,5 @@ html.paint-ready #paint-guard {
    blur softens the globe so it doesn't compete with text.
    brightness darkens it simultaneously for contrast. */
 #canvas-container.blurred {
-    filter: blur(1.5px);
+    filter: blur(7px);
 }

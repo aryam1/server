@@ -69,6 +69,11 @@
     pointer-events: none;
     z-index: 1;
     flex-shrink: 0;
+    transition: opacity 0.25s;
+}
+
+.section-inner.scrollable .scroll-fade.off {
+    opacity: 0;
 }
 
 .section-inner.scrollable .scroll-fade-top {
@@ -211,7 +216,7 @@
 
 .card {
     border: 1px solid var(--color-border);
-    border-left: 1px solid var(--color-globe-grid);
+    border-left: 1px solid var(--color-accent);
     background: var(--color-card-bg);
     padding: 1rem 1.1rem;
     opacity: 0;
@@ -234,15 +239,14 @@ a.card,
 button.card,
 .card.is-clickable {
     cursor: pointer;
-    transition-property: opacity, transform, border-left-color, background;
-    transition-duration: 0.5s, 0.5s, 0.3s, 0.3s;
+    transition-property: opacity, transform, background;
+    transition-duration: 0.5s, 0.5s, 0.3s;
     transition-timing-function: ease;
 }
 
 a.card:hover,
 button.card:hover,
 .card.is-clickable:hover {
-    border-left-color: var(--color-accent);
     background: var(--color-card-hover-bg);
 }
 
@@ -321,7 +325,7 @@ button.card:hover,
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.15em;
-    color: var(--color-text-subtle);
+    color: var(--color-accent);
     text-decoration: none;
     text-transform: uppercase;
     display: flex;
@@ -363,6 +367,44 @@ button.card:hover,
     height: 1px;
     background: currentColor;
     flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────
+   SECTION BUTTON
+   Call-to-action button for download links etc.
+   Inline-block so it sits naturally after cards.
+   Uses amber accent with a subtle border.
+───────────────────────────────────────────── */
+.section-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--color-accent);
+    text-decoration: none;
+    text-transform: uppercase;
+    border: 1px solid var(--color-accent);
+    padding: 0.6rem 1.1rem;
+    margin-top: 1.2rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+        opacity 0.5s ease 0.3s,
+        transform 0.5s ease 0.3s,
+        background 0.3s,
+        color 0.3s;
+}
+
+.section-button.vis {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.section-button:hover {
+    background: var(--color-accent);
+    color: var(--color-bg);
 }
 
 #footer {

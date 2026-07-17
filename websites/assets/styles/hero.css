@@ -41,26 +41,6 @@
 }
 
 /* ─────────────────────────────────────────────
-   COORDINATES DISPLAY
-   Top-right corner. Shows lat/lon derived
-   from globe rotation angles — purely decorative
-   but reinforces the globe metaphor.
-   Updated every frame in the render loop.
-───────────────────────────────────────────── */
-#coords {
-    position: fixed;
-    top: 1.6rem;
-    right: 2rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    color: var(--color-text-coords);
-    pointer-events: none;
-    z-index: var(--z-coords);
-    opacity: 0;
-    animation: fadein 2s ease 2.5s forwards;
-}
-
 /* ─────────────────────────────────────────────
    KEYFRAME ANIMATIONS
    fadein: used on all initially-hidden elements.
