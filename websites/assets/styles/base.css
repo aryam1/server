@@ -33,6 +33,12 @@ body {
     overscroll-behavior-y: none;
 }
 
+@media (max-width: 600px) {
+    body {
+        font-size: 15px;
+    }
+}
+
 #canvas-container canvas {
     cursor: grab;
 }

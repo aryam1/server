@@ -40,7 +40,13 @@
     animation: fadein 1s ease 0.25s forwards;
 }
 
-/* ─────────────────────────────────────────────
+@media (max-width: 600px) {
+    #hero-name {
+        font-size: clamp(1.5rem, 6vw, 2.2rem);
+        letter-spacing: 0.15em;
+    }
+}
+
 /* ─────────────────────────────────────────────
    KEYFRAME ANIMATIONS
    fadein: used on all initially-hidden elements.
