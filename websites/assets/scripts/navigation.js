@@ -7,74 +7,6 @@ const canvasEl = document.getElementById("canvas-container");
 const heroText = document.getElementById("hero-text");
 const sectionNav = document.getElementById("section-nav");
 
-// DEBUG SCROLL OVERLAY — garish and fixed, remove before prod.
-(function () {
-    const d = document.createElement("div");
-    d.id = "scroll-debug";
-    d.innerHTML = [
-        '<div class="sd-head">SCROLL DEBUG</div>',
-        '<div class="sd-row"><span class="sd-label">mode</span><span id="sd-mode">—</span></div>',
-        '<div class="sd-row"><span class="sd-label">acc</span><span id="sd-acc">0.0</span></div>',
-        '<div class="sd-row"><span class="sd-label">snaps</span><span id="sd-snaps">0</span></div>',
-        '<div class="sd-row"><span class="sd-label">ev/s</span><span id="sd-rate">0</span></div>',
-        '<div class="sd-bar-track"><div class="sd-bar-fill" id="sd-bar"></div></div>',
-    ].join("");
-    document.body.appendChild(d);
-    const style = document.createElement("style");
-    style.textContent = [
-        "#scroll-debug {",
-        "  position: fixed; bottom: 0; right: 0; z-index: 99999;",
-        "  background: rgba(0,0,0,0.95); color: #0f0;",
-        "  font: 11px 'JetBrains Mono', monospace; padding: 8px 12px;",
-        "  border-left: 3px solid #ff0; border-top: 3px solid #ff0;",
-        "  min-width: 180px; pointer-events: none;",
-        "}",
-        "#scroll-debug.flash { background: rgba(255,255,0,0.35); }",
-        "#scroll-debug.flash-stepped { background: rgba(0,120,255,0.55); }",
-        ".sd-head { color: #ff0; font-weight: 700; margin-bottom: 4px; }",
-        ".sd-row { display: flex; justify-content: space-between; margin: 1px 0; }",
-        ".sd-label { color: #888; }",
-        ".sd-bar-track { margin-top: 4px; height: 6px; background: #222; }",
-        ".sd-bar-fill { height: 100%; width: 0%; background: #f0f; transition: width 0.05s; }",
-    ].join("\n");
-    document.head.appendChild(style);
-})();
-let sdSnaps = 0;
-let sdEvents = 0;
-let sdLastTime = performance.now();
-const SD_RATE_WINDOW = 300;
-
-function sdUpdate(modeLabel, acc, snapped) {
-    const el = document.getElementById("scroll-debug");
-    if (!el) return;
-    sdEvents++;
-    const now = performance.now();
-    if (now - sdLastTime > SD_RATE_WINDOW) {
-        sdEvents = 0;
-        sdLastTime = now;
-    }
-    const dt = (now - sdLastTime) / 1000;
-    const rate = dt > 0 ? sdEvents / dt : 0;
-    if (snapped) sdSnaps++;
-
-    document.getElementById("sd-mode").textContent = modeLabel || "—";
-    document.getElementById("sd-acc").textContent = acc.toFixed(1);
-    document.getElementById("sd-snaps").textContent = sdSnaps;
-    document.getElementById("sd-rate").textContent = Math.round(rate);
-
-    const isStepped = modeLabel === "stepped";
-    const barEl = document.getElementById("sd-bar");
-    const pct = isStepped ? 0 : Math.min(Math.abs(acc) / 30 * 100, 100);
-    barEl.style.width = pct + "%";
-    barEl.style.background = isStepped ? "#08f" : pct >= 100 ? "#f00" : "#f0f";
-
-    el.classList.add(isStepped ? "flash-stepped" : "flash");
-    clearTimeout(el._sdTimer);
-    el._sdTimer = setTimeout(() => {
-        el.classList.remove("flash", "flash-stepped");
-    }, 120);
-}
-
 let currentSnapIndex = 0;
 let isSnapping = false;
 let snapUnlockTimer;
@@ -82,18 +14,23 @@ let touchStartY = 0;
 let touchLastY = 0;
 let touchStartTarget = null;
 let touchScrolledInsideSection = false;
-let mode = null; // "stepped" | "infinite" | null
+let mode = null; // "stepped" | "infinite" | "trackpad" | null
 let accumulatedDelta = 0;
 let steppedCooldownActive = false;
 let steppedCooldownTimer;
 let infiniteCheckTimer;
 let infiniteIdleTimer;
+let lastWheelTime = 0;
+let lastTrackpadEventTime = 0;
+let justUnlocked = false;
 const SNAP_DURATION = 420;
 const MODE_THRESHOLD = 50;
 const STEPPED_COOLDOWN = 300;
 const INFINITE_CHECK_INTERVAL = 100;
 const INFINITE_SNAP_THRESHOLD = 4;
 const INFINITE_IDLE_TIMEOUT = 250;
+const TRACKPAD_BASE_THRESHOLD = 20;
+const TRACKPAD_MULTI_THRESHOLD = 500;
 const TOUCH_THRESHOLD = 48;
 const INTERNAL_KEY_SCROLL = 120;
 
@@ -223,19 +160,64 @@ window.addEventListener(
             return;
         }
 
-        // ─── DUAL-MODE SCROLL DETECTION ───
-        // Auto-detect input type from event magnitude.
-        // Stepped mice (delta ~100) use cooldown gating.
-        // Infinite wheels (delta ~1-5) use periodic accumulator checks.
+        // ─── INPUT TYPE DETECTION ───
+        // Non-round deltas (5, -37, 12) → trackpad.
+        // Round deltas: rapid (<100ms apart) → free-spin, isolated → mouse click.
         const absDelta = Math.abs(e.deltaY);
         const signDelta = Math.sign(e.deltaY);
+        const now = performance.now();
+        const isDeltaRound = absDelta % 10 === 0;
+        const isRapid = now - lastWheelTime < 100;
+        lastWheelTime = now;
+        const isTrackpad = !isDeltaRound || (isDeltaRound && isRapid);
 
+        if (isTrackpad) {
+            // ── TRACKPAD / FREE-SPIN ──
+            if (mode !== "trackpad") {
+                mode = "trackpad";
+                accumulatedDelta = 0;
+                clearInterval(infiniteCheckTimer);
+                infiniteCheckTimer = null;
+                clearTimeout(infiniteIdleTimer);
+            }
+
+            const eventGap = now - lastTrackpadEventTime;
+            lastTrackpadEventTime = now;
+
+            // A pause in the event stream signals finger lift → unlock + fresh accumulation.
+            if (eventGap > 80) {
+                if (isSnapping) {
+                    isSnapping = false;
+                    window.clearTimeout(snapUnlockTimer);
+                    justUnlocked = true;
+                }
+                accumulatedDelta = 0;
+            }
+
+            if (accumulatedDelta !== 0 && signDelta !== Math.sign(accumulatedDelta)) {
+                accumulatedDelta = 0;
+            }
+            accumulatedDelta += e.deltaY;
+
+
+            if (!isSnapping && Math.abs(accumulatedDelta) >= TRACKPAD_BASE_THRESHOLD) {
+                const dir = Math.sign(accumulatedDelta);
+                const mag = Math.abs(accumulatedDelta);
+                const steps = justUnlocked
+                    ? (mag >= TRACKPAD_MULTI_THRESHOLD ? Math.round(mag / TRACKPAD_MULTI_THRESHOLD) : 1)
+                    : (mag >= TRACKPAD_MULTI_THRESHOLD ? Math.min(Math.round(mag / TRACKPAD_MULTI_THRESHOLD), 3) : 1);
+                accumulatedDelta = 0;
+                justUnlocked = false;
+                if (!isSnapping) currentSnapIndex = nearestSnapIndex();
+                snapToSection(Math.max(0, Math.min(currentSnapIndex + dir * steps, snapSections().length - 1)));
+            }
+            return;
+        }
+
+        // ── MOUSE WHEEL ──
+        // Round deltas: either stepped (≥50) or infinite (<50).
         if (absDelta >= MODE_THRESHOLD) {
             // ── STEPPED MODE ──
-            // Single spike or clustered spike: snap immediately on the first
-            // event of each cluster, then block for STEPPED_COOLDOWN ms.
-            // Cooldown resets after the gap between clusters, so the next
-            // cluster gets its own snap.
             if (mode !== "stepped") {
                 mode = "stepped";
                 accumulatedDelta = 0;
@@ -243,53 +225,42 @@ window.addEventListener(
                 infiniteCheckTimer = null;
                 clearTimeout(infiniteIdleTimer);
             }
-
             if (!steppedCooldownActive) {
                 if (!isSnapping) currentSnapIndex = nearestSnapIndex();
                 snapToSection(requestedSnapIndex(signDelta));
-                sdUpdate("stepped", 0, true);
                 steppedCooldownActive = true;
                 clearTimeout(steppedCooldownTimer);
                 steppedCooldownTimer = setTimeout(() => {
                     steppedCooldownActive = false;
                 }, STEPPED_COOLDOWN);
             } else {
-                sdUpdate("stepped", 0, false);
             }
             return;
         }
 
         // ── INFINITE MODE ──
-        // Tiny deltas from free-spin wheels or trackpads.  Accumulate
-        // and let the periodic check timer drive snaps.
+        // Small round deltas (rare).  Accumulate and periodic check.
         if (mode !== "infinite") {
             mode = "infinite";
             accumulatedDelta = 0;
             steppedCooldownActive = false;
         }
-
-        // Direction change resets accumulator so reversing feels instant.
         if (accumulatedDelta !== 0 && signDelta !== Math.sign(accumulatedDelta)) {
             accumulatedDelta = 0;
         }
-
         accumulatedDelta += e.deltaY;
-        sdUpdate("infinite", accumulatedDelta, false);
 
-        // Start the periodic check if not already running.
         if (!infiniteCheckTimer) {
             infiniteCheckTimer = setInterval(() => {
-                if (Math.abs(accumulatedDelta) >= INFINITE_SNAP_THRESHOLD) {
+                if (!isSnapping && Math.abs(accumulatedDelta) >= INFINITE_SNAP_THRESHOLD) {
                     const dir = Math.sign(accumulatedDelta);
                     accumulatedDelta = 0;
                     if (!isSnapping) currentSnapIndex = nearestSnapIndex();
                     snapToSection(requestedSnapIndex(dir));
-                    sdUpdate("infinite", 0, true);
                 }
             }, INFINITE_CHECK_INTERVAL);
         }
 
-        // Extend idle timeout — stop checking after no events for INFINITE_IDLE_TIMEOUT ms.
         clearTimeout(infiniteIdleTimer);
         infiniteIdleTimer = setTimeout(() => {
             clearInterval(infiniteCheckTimer);
