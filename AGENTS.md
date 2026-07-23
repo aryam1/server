@@ -12,7 +12,7 @@ Single-VPS infrastructure-as-code for Ubuntu. Shell scripts provision the OS; Do
 
 The README still references Nginx, certbot, and `/opt/` paths. These are all wrong. Traefik handles:
 - **Public** (port 443) — `aryam.dev`, `abs.aryam.dev` with Let's Encrypt via Cloudflare DNS challenge
-- **Private** (port 8443) — Tailscale-only: `files.aryam.dev`, Prowlarr, qBittorrent, Mousehole
+- **Private** (port 8443) — Tailscale-only: `files.aryam.dev`, qBittorrent, Mousehole
 - **Metrics** (port 8082) — Prometheus scraping
 - **Web** (port 80) — redirects to HTTPS
 

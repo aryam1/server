@@ -22,15 +22,6 @@
         href: https://qb.aryam.dev
         description: qBittorrent
         container: qbittorrent
-    - prowlarr:
-        icon: mdi-magnify
-        href: https://prow.aryam.dev
-        description: Prowlarr
-        container: prow
-    - flaresolverr:
-        icon: mdi-shield-check
-        description: FlareSolverr
-        container: flaresolverr
     - gluetun:
         icon: mdi-vpn
         description: Gluetun VPN

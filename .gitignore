@@ -17,8 +17,6 @@
 *.sqlite
 docker/filebrowser/data
 docker/filebrowser/database.db
-docker/prowlarr/zilean
-docker/prowlarr/config
 docker/qbittorrent/config
 docker/qbittorrent/themes
 
