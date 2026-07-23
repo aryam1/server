@@ -18,3 +18,23 @@ services:
       - traefik.enable=true
       - traefik.http.routers.abs.entrypoints=public
       - traefik.http.services.abs.loadbalancer.server.port=80
+
+  audiobooks_green_proxy:
+    image: ghcr.io/fabrikant/audiobooks_green_proxy:latest
+    container_name: absg
+    networks:
+      - proxy
+    init: true
+    volumes:
+      - ./data:/app/data
+    environment:
+      # If true, Swagger will be available at http[s]://server:port/docs
+      - SHOW_SWAGGER=true
+      - LOG_LEVEL=trace
+      - SERVER_ENDPOINT=http://abs:80
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.absg.rule=Host(`absg.aryam.dev`)
+      - traefik.http.routers.absg.entrypoints=public
+      - traefik.http.services.absg.loadbalancer.server.port=8081
