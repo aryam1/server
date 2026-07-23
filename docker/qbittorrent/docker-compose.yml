@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.http.routers.qbittorrent.rule=Host(`qb.aryam.dev`) 
+      - traefik.http.routers.qbittorrent.rule=Host(`qb.aryam.dev`)
       - traefik.http.routers.qbittorrent.entrypoints=private
       - traefik.http.services.qbittorrent.loadbalancer.server.port=4201 # qBittorrent web UI
       - traefik.http.routers.qbittorrent.service=qbittorrent
@@ -47,9 +47,11 @@ services:
 
   mousehole:
     image: tmmrtn/mousehole:latest
+    container_name: mousehole
     network_mode: "service:gluetun"
     environment:
       TZ: Europe/London # Set to your timezone for localization
+      MOUSEHOLE_INSECURE_ALLOW_NO_AUTH: true
     volumes:
       # persist cookie data across container restarts
       - "mousehole:/var/lib/mousehole"

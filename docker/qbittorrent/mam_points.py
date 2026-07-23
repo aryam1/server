@@ -11,7 +11,7 @@ print(f"\n{'='*40}")
 print(f"Run started: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
 print('='*40)
 
-load_dotenv()
+_ = load_dotenv()
 
 QB_HOST = "https://qb.aryam.dev"
 
