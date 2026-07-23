@@ -28,13 +28,14 @@ services:
     mem_limit: 2g
     mem_reservation: 128m
     environment:
-     - CF_API_EMAIL=${CF_API_EMAIL}
-     - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     volumes:
-     - /etc/localtime:/etc/localtime:ro # Matches timezones
-     - /var/run/docker.sock:/var/run/docker.sock:ro # Docker socket for container watching
-     - /server/docker/traefik/data/traefik.yml:/traefik.yml:ro # Config
-     - /server/docker/traefik/data/acme.json:/acme.json # Lets Encrypt certs
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /server/docker/traefik/data/traefik.yml:/traefik.yml:ro
+      - /server/docker/traefik/data/acme.json:/acme.json
+      - /server/docker/traefik/logs:/var/log/traefik
     labels:
      - traefik.enable=true
      - traefik.http.services.traefik.loadbalancer.server.port=8080 # Dashboard listening port
