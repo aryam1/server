@@ -1,0 +1,75 @@
+---
+- Public:
+    - abs:
+        icon: mdi-audiobook
+        href: https://abs.aryam.dev
+        description: Audiobookshelf
+        container: abs
+    - absg:
+        icon: mdi-api
+        href: https://absg.aryam.dev
+        description: ABS Green Proxy
+        container: absg
+    - site:
+        icon: mdi-web
+        href: https://aryam.dev
+        description: Portfolio
+        container: site
+
+- Media & Tools:
+    - qbittorrent:
+        icon: mdi-download
+        href: https://qb.aryam.dev
+        description: qBittorrent
+        container: qbittorrent
+    - prowlarr:
+        icon: mdi-magnify
+        href: https://prow.aryam.dev
+        description: Prowlarr
+        container: prow
+    - flaresolverr:
+        icon: mdi-shield-check
+        description: FlareSolverr
+        container: flaresolverr
+    - gluetun:
+        icon: mdi-vpn
+        description: Gluetun VPN
+        container: gluetun
+    - filebrowser:
+        icon: mdi-folder
+        href: https://files.aryam.dev
+        description: File Browser
+        container: files
+    - mousehole:
+        icon: mdi-pipe
+        href: https://mousehole.aryam.dev
+        description: Mousehole
+        container: mousehole
+
+- Monitoring:
+    - grafana:
+        icon: mdi-chart-box
+        href: https://grafana.aryam.dev
+        description: Grafana
+        container: grafana
+    - traefik:
+        icon: mdi-lan
+        href: https://traf.aryam.dev
+        description: Traefik Dashboard
+        container: traf
+    - prometheus:
+        icon: mdi-fire
+        description: Prometheus
+        container: prom
+    - loki:
+        icon: mdi-database
+        description: Loki
+        container: loki
+    - promtail:
+        icon: mdi-file-send
+        description: Promtail
+        container: promtail
+    - node-exporter:
+        icon: mdi-server
+        description: Node Exporter
+        container: node-exporter

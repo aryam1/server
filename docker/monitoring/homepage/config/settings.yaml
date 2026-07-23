@@ -1,0 +1,11 @@
+---
+title: Arya's Homepage
+theme: dark
+headerStyle: boxed
+fullWidth: true
+showStats: true
+statusStyle: "dot"
+cardBlur: 3xl
+providers:
+  openweathermap: openweathermapapikey
+  weatherapi: weatherapiapikey

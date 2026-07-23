@@ -3,13 +3,58 @@ networks:
     external: true
 
 services:
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: unless-stopped
+    user: "0:0"
+    command: -config.file=/etc/loki/loki.yml
+    volumes:
+      - ./loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki_data:/loki
+    networks:
+      - proxy
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    restart: unless-stopped
+    command: -config.file=/etc/promtail/promtail.yml
+    volumes:
+      - ./promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /server/docker/traefik/logs:/var/log/traefik:ro
+    networks:
+      - proxy
+
   prom:
     image: prom/prometheus:latest
     container_name: prom
     restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-admin-api'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+    networks:
+      - proxy
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    pid: host
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/rootfs:ro
     networks:
       - proxy
 
@@ -19,14 +64,15 @@ services:
     restart: unless-stopped
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=changeme
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
     networks:
-      - traefik_proxy
+      - proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.grafana.rule=Host(`grafana.yourdomain.dev`)
-      - traefik.http.routers.grafana.entrypoints=websecure
+      - traefik.http.routers.grafana.rule=Host(`grafana.aryam.dev`)
+      - traefik.http.routers.grafana.entrypoints=private
       - traefik.http.routers.grafana.tls.certresolver=cf
       - traefik.http.services.grafana.loadbalancer.server.port=3000
 
@@ -34,18 +80,24 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
+    healthcheck:
+      disable: true
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: home.aryam.dev
     volumes:
       - ./homepage/config:/app/config
+      - ./homepage/images:/app/public/images
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - traefik_proxy
+      - proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.homepage.rule=Host(`home.yourdomain.dev`)
-      - traefik.http.routers.homepage.entrypoints=websecure
+      - traefik.http.routers.homepage.rule=Host(`home.aryam.dev`)
+      - traefik.http.routers.homepage.entrypoints=private
       - traefik.http.routers.homepage.tls.certresolver=cf
       - traefik.http.services.homepage.loadbalancer.server.port=3000
 
 volumes:
+  loki_data:
   prometheus_data:
   grafana_data:

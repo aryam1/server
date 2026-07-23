@@ -1,0 +1,26 @@
+#revalidate {
+  display: none;
+}
+
+#version {
+  display: none;
+}
+
+#style {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  justify-content: flex-start !important;
+}
+
+#style button {
+  opacity: 0.85 !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(12px);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+#style button:hover {
+  opacity: 1 !important;
+}
