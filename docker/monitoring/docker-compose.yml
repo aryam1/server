@@ -76,27 +76,6 @@ services:
       - traefik.http.routers.grafana.tls.certresolver=cf
       - traefik.http.services.grafana.loadbalancer.server.port=3000
 
-  homepage:
-    image: ghcr.io/gethomepage/homepage:latest
-    container_name: homepage
-    restart: unless-stopped
-    healthcheck:
-      disable: true
-    environment:
-      HOMEPAGE_ALLOWED_HOSTS: home.aryam.dev
-    volumes:
-      - ./homepage/config:/app/config
-      - ./homepage/images:/app/public/images
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - proxy
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.homepage.rule=Host(`home.aryam.dev`)
-      - traefik.http.routers.homepage.entrypoints=private
-      - traefik.http.routers.homepage.tls.certresolver=cf
-      - traefik.http.services.homepage.loadbalancer.server.port=3000
-
 volumes:
   loki_data:
   prometheus_data:

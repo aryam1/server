@@ -56,10 +56,10 @@
         icon: mdi-database
         description: Loki
         container: loki
-    - promtail:
+    - alloy:
         icon: mdi-file-send
-        description: Promtail
-        container: promtail
+        description: Grafana Alloy
+        container: alloy
     - node-exporter:
         icon: mdi-server
         description: Node Exporter

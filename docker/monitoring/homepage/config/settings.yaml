@@ -1,11 +1,7 @@
 ---
-title: Arya's Homepage
-theme: dark
-headerStyle: boxed
-fullWidth: true
-showStats: true
-statusStyle: "dot"
-cardBlur: 3xl
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/settings/
+
 providers:
   openweathermap: openweathermapapikey
   weatherapi: weatherapiapikey

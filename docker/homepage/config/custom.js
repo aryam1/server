@@ -7,7 +7,7 @@ function waitForElementWithFunction(elementFunction, timeout, callback) {
     if (element) {
       callback(element);
     } else if (Date.now() - startTime < timeout) {
-      setTimeout(checkElement, 100);
+      setTimeout(checkElement, 10);
     } else {
       console.error("Element not found within the specified timeout.");
       callback(undefined);
@@ -32,7 +32,7 @@ function loadImageBg() {
     12000,
     (container) => {
       container.appendHTML(
-        `<video autoplay loop muted style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: none; object-fit: cover; filter: blur(8px);">
+        `<video autoplay loop muted style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: none; object-fit: cover; filter: blur(0px);">
       <source src="/images/background.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>`

@@ -1,0 +1,21 @@
+---
+title: Arya's Homepage
+theme: dark
+language: en-GB
+headerStyle: clean
+target: _self
+fullWidth: true
+showStats: true
+statusStyle: "dot"
+cardBlur: 3xl
+providers:
+  openweathermap: "{{HOMEPAGE_VAR_OWM_API_KEY}}"
+background: /images/frame.png
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  showSearchSuggestions: false
+  hideVisitURL: true
+  provider: google
+hideVersion: true
+disableUpdateCheck: true

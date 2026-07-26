@@ -1,0 +1,22 @@
+---
+- resources:
+    cpu: true
+    memory: true
+    expanded: true
+    disk: /
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: short
+      timeStyle: short
+
+- search:
+    provider: google
+    target: _blank
+
+- openweathermap:
+    latitude: 51.458342208201515
+    longitude: -0.971604980585834
+    units: metric
+    provider: openweathermap
