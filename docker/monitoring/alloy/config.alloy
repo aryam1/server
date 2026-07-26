@@ -1,0 +1,67 @@
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+discovery.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "15s"
+}
+
+discovery.relabel "containers" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+
+loki.source.docker "containers" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.containers.output
+  forward_to = [loki.process.docker.receiver]
+}
+
+loki.process "docker" {
+  stage.multiline {
+    firstline = "\\d{4}[/-]\\d{2}[/-]\\d{2}\\b|\\d{2}:\\d{2}:\\d{2}\\b|[A-Z]{4,}:\\s|^\\{"
+  }
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.source.file "traefik_access" {
+  targets = [{
+    __path__  = "/var/log/traefik/access.log",
+    job       = "traefik_access",
+  }]
+  forward_to = [loki.process.traefik.receiver]
+}
+
+loki.process "traefik" {
+  stage.json {
+    expressions = {
+      ClientHost       = "ClientHost",
+      RequestPath      = "RequestPath",
+      RequestMethod    = "RequestMethod",
+      OriginStatus     = "OriginStatus",
+      DownstreamStatus = "DownstreamStatus",
+      Duration         = "Duration",
+      RouterName       = "RouterName",
+      ServiceName      = "ServiceName",
+      CfIpcountry      = "request_Cf-Ipcountry",
+      UserAgent        = "request_User-Agent",
+    }
+  }
+  stage.labels {
+    values = {
+      RouterName    = "",
+      ServiceName   = "",
+      RequestMethod = "",
+      CfIpcountry   = "",
+    }
+  }
+  forward_to = [loki.write.default.receiver]
+}
