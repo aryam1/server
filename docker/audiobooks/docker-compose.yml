@@ -30,7 +30,7 @@ services:
     environment:
       # If true, Swagger will be available at http[s]://server:port/docs
       - SHOW_SWAGGER=true
-      - LOG_LEVEL=trace
+      - LOG_LEVEL=info
       - SERVER_ENDPOINT=http://abs:80
     restart: unless-stopped
     labels:
