@@ -20,12 +20,6 @@ accessLog:
         User-Agent: keep
         Cf-Ipcountry: keep
 
-metrics:
-  prometheus:
-    addRoutersLabels: true
-    addServicesLabels: true
-    entryPoint: metrics
-
 log:
   level: INFO
 
@@ -56,9 +50,6 @@ entryPoints:
     http:
       tls:
         certResolver: cf
-
-  metrics:
-    address: ":8082"
 
 certificatesResolvers:
   cf:

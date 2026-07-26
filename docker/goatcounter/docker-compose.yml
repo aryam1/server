@@ -1,0 +1,27 @@
+---
+networks:
+  proxy:
+    external: true
+
+services:
+  goatcounter:
+    image: arp242/goatcounter:latest
+    container_name: goatcounter
+    restart: unless-stopped
+    command:
+      - serve
+      - -listen
+      - :8080
+    volumes:
+      - goatcounter_data:/home/goatcounter/goatcounter-data
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.goatcounter.rule=Host(`analytics.aryam.dev`)
+      - traefik.http.routers.goatcounter.entrypoints=public
+      - traefik.http.routers.goatcounter.tls.certresolver=cf
+      - traefik.http.services.goatcounter.loadbalancer.server.port=8080
+
+volumes:
+  goatcounter_data:

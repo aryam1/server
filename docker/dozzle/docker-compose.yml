@@ -1,0 +1,22 @@
+---
+networks:
+  proxy:
+    external: true
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOZZLE_NO_ANALYTICS=true
+    networks:
+      - proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dozzle.rule=Host(`logs.aryam.dev`)
+      - traefik.http.routers.dozzle.entrypoints=private
+      - traefik.http.routers.dozzle.tls.certresolver=cf
+      - traefik.http.services.dozzle.loadbalancer.server.port=8080

@@ -37,30 +37,24 @@
         description: Mousehole
         container: mousehole
 
-- Monitoring:
-    - grafana:
-        icon: mdi-chart-box
-        href: https://grafana.aryam.dev
-        description: Grafana
-        container: grafana
+- Management:
+    - dockhand:
+        icon: mdi-docker
+        href: https://dockhand.aryam.dev
+        description: Dockhand
+        container: dockhand
+    - dozzle:
+        icon: mdi-text-box-search
+        href: https://logs.aryam.dev
+        description: Dozzle Logs
+        container: dozzle
     - traefik:
         icon: mdi-lan
         href: https://traf.aryam.dev
-        description: Traefik Dashboard
+        description: Traefik
         container: traf
-    - prometheus:
-        icon: mdi-fire
-        description: Prometheus
-        container: prom
-    - loki:
-        icon: mdi-database
-        description: Loki
-        container: loki
-    - alloy:
-        icon: mdi-file-send
-        description: Grafana Alloy
-        container: alloy
-    - node-exporter:
-        icon: mdi-server
-        description: Node Exporter
-        container: node-exporter
+    - goatcounter:
+        icon: mdi-chart-bar
+        href: https://analytics.aryam.dev
+        description: GoatCounter
+        container: goatcounter
