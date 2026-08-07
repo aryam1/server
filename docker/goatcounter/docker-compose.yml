@@ -18,9 +18,8 @@ services:
       - proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.goatcounter.rule=Host(`analytics.aryam.dev`)
-      - traefik.http.routers.goatcounter.entrypoints=public
-      - traefik.http.routers.goatcounter.tls.certresolver=cf
+      - traefik.http.routers.goatcounter.rule=Host(`stats.aryam.dev`)
+      - traefik.http.routers.goatcounter.entrypoints=private
       - traefik.http.services.goatcounter.loadbalancer.server.port=8080
 
 volumes:

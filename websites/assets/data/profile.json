@@ -25,14 +25,6 @@
           "title": "Littleover Community School",
           "sub": "2014 – 2019",
           "desc": "A-levels: Mathematics A*, Physics A, Computer Science A. 10 A*–A at GCSE."
-        },
-        {
-          "title": "Currently",
-          "desc": "C++ for quant dev and options pricing.",
-          "bullets": [
-            "Training for Venice Marathon, October 2026"
-          ],
-          "tags": ["C++"]
         }
       ],
       "button": { "label": "Download Resume", "url": "/assets/resume.pdf" }
@@ -143,6 +135,6 @@
     }
   ],
   "footer": {
-    "text": "aryam.dev · built with intent"
+    "text": "aryam.dev"
   }
 }

@@ -55,6 +55,6 @@
         container: traf
     - goatcounter:
         icon: mdi-chart-bar
-        href: https://analytics.aryam.dev
+        href: https://stats.aryam.dev
         description: GoatCounter
         container: goatcounter
