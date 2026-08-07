@@ -12,6 +12,8 @@ services:
       disable: true
     environment:
       HOMEPAGE_ALLOWED_HOSTS: home.aryam.dev
+    env_file:
+      - .env
     volumes:
       - ./config:/app/config
       - ./images:/app/public/images
