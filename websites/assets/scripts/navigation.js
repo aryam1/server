@@ -322,6 +322,14 @@ window.addEventListener(
     "touchmove",
     (e) => {
         const currentY = e.touches[0].clientY;
+        // If the browser already owns the scroll (native pan inside a
+        // scrollable section), the event is non-cancelable — don't fight
+        // it or call preventDefault. Track it so touchend won't snap.
+        if (!e.cancelable) {
+            touchScrolledInsideSection = true;
+            touchLastY = currentY;
+            return;
+        }
         const deltaY = touchStartY - currentY;
         const stepY = touchLastY - currentY;
         const scrollable = scrollableAncestor(touchStartTarget);
@@ -333,14 +341,13 @@ window.addEventListener(
 
         const activeScrollEl = activeSectionScrollEl();
         if (canScrollElement(activeScrollEl, stepY)) {
-        e.preventDefault();
+            e.preventDefault();
             activeScrollEl.scrollBy({ top: stepY, behavior: "auto" });
             touchScrolledInsideSection = true;
             touchLastY = currentY;
             return;
         }
 
-        if (Math.abs(deltaY) > 8) e.preventDefault();
         touchLastY = currentY;
     },
     { passive: false },
@@ -402,7 +409,7 @@ function onScroll() {
             const rect = el.getBoundingClientRect();
             el.classList.toggle(
                 "vis",
-                rect.top < vh * 0.88 && rect.bottom > vh * 0.12,
+                rect.top < vh * 0.88 && rect.bottom > vh * 0.04,
             );
         });
 

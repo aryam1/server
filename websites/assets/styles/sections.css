@@ -46,6 +46,9 @@
     overflow-y: auto;
     scrollbar-gutter: stable;
     scrollbar-color: transparent transparent;
+    /* Re-enable native vertical panning inside long sections, overriding
+       the touch-action: none set on <html> (ancestor intersection). */
+    touch-action: pan-y;
 }
 
 .section-inner.scrollable.has-scrolled:hover {

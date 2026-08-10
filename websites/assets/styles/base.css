@@ -16,6 +16,9 @@ html {
     scroll-behavior: smooth;
     scroll-snap-type: y mandatory;
     overscroll-behavior-y: none;
+    /* JS owns touch scrolling — blocks the browser from starting a native
+       pan so touchmove stays cancelable (no intervention warnings). */
+    touch-action: none;
 }
 
 body {
