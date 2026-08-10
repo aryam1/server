@@ -20,7 +20,7 @@ services:
       - traefik.http.services.abs.loadbalancer.server.port=80
 
   audiobooks_green_proxy:
-    image: ghcr.io/fabrikant/audiobooks_green_proxy:latest
+    image: ghcr.io/aryam1/audiobooks_green_proxy:latest
     container_name: absg
     networks:
       - proxy
