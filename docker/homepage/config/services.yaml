@@ -58,3 +58,8 @@
         href: https://stats.aryam.dev
         description: GoatCounter
         container: goatcounter
+    - "dev site":
+        icon: mdi-web
+        href: https://dev.aryam.dev
+        description: Dev Version
+        container: site-dev
