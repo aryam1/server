@@ -14,7 +14,7 @@ services:
       - /dev/net/tun:/dev/net/tun
     environment:
       - VPN_SERVICE_PROVIDER=nordvpn
-      - SERVER_HOSTNAMES=nl994.nordvpn.com
+      - SERVER_COUNTRIES=Netherlands
       - VPN_TYPE=wireguard
       - WIREGUARD_PRIVATE_KEY=${NORDVPN_PRIVATE_KEY}
     restart: unless-stopped
