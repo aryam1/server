@@ -1,4 +1,3 @@
----
 - Public:
     - abs:
         icon: mdi-audiobook
@@ -22,6 +21,11 @@
         href: https://qb.aryam.dev
         description: qBittorrent
         container: qbittorrent
+    - prowlarr:
+        icon: mdi-magnify
+        href: https://prow.aryam.dev
+        description: Prowlarr
+        container: prow
     - gluetun:
         icon: mdi-vpn
         description: Gluetun VPN
