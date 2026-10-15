@@ -16,7 +16,7 @@
 # Docker databases and state
 *.sqlite
 docker/filebrowser/data/tmp
-docker/filebrowser/filebrowser.sqlite
+docker/filebrowser/filebrowser.sqlite*
 docker/prowlarr/config
 docker/qbittorrent/config
 docker/qbittorrent/themes

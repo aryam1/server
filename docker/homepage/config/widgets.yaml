@@ -3,7 +3,9 @@
     cpu: true
     memory: true
     expanded: true
-    disk: /
+    disk:
+      - /
+      - /mnt/storagebox
 
 - datetime:
     text_size: xl

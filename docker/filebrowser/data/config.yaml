@@ -9,6 +9,10 @@ server:
       name: "Root"
       config:
         defaultEnabled: true
+    - path: "/storagebox"
+      name: "Storagebox"
+      config:
+        defaultEnabled: true
 http:
   trustProxyHeaders: true
 

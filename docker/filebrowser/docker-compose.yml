@@ -12,6 +12,7 @@ services:
     volumes:
       - ./data:/home/filebrowser/data
       - /:/files
+      - /mnt/storagebox:/storagebox:ro
     environment:
       - "FILEBROWSER_CONFIG=data/config.yaml"
     restart: unless-stopped

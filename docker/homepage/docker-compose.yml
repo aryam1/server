@@ -18,6 +18,7 @@ services:
       - ./config:/app/config
       - ./images:/app/public/images
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/storagebox:/mnt/storagebox:ro
     networks:
       - proxy
     labels:
