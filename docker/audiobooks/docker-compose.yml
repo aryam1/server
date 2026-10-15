@@ -48,7 +48,7 @@ services:
     volumes:
       - ./readmeabook/config:/app/config
       - ./readmeabook/cache:/app/cache
-      - /mnt/storagebox:/host/mnt/storagebox
+      - /mnt/storagebox:/storagebox
       - ./readmeabook/pgdata:/var/lib/postgresql/data
       - ./readmeabook/redis:/var/lib/redis
     environment:
