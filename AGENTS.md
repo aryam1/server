@@ -8,15 +8,14 @@ Single-VPS infrastructure-as-code for Ubuntu. Shell scripts provision the OS; Do
 
 **No build system, no tests, no CI, no linting.** This repo is pure shell + YAML + static HTML/JS/CSS.
 
-## Traefik replaces Nginx (README is stale)
+## Traefik (not Nginx)
 
-The README still references Nginx, certbot, and `/opt/` paths. These are all wrong. Traefik handles:
-- **Public** (port 443) — `aryam.dev`, `abs.aryam.dev` with Let's Encrypt via Cloudflare DNS challenge
-- **Private** (port 8443) — Tailscale-only: `files.aryam.dev`, Prowlarr, qBittorrent, Mousehole
-- **Metrics** (port 8082) — Prometheus scraping
+Traefik handles all routing and TLS:
+- **Public** (port 443) — Let's Encrypt via Cloudflare DNS challenge: `aryam.dev`, `abs.aryam.dev`, `absg.aryam.dev`, `rmab.aryam.dev`
+- **Private** (port 8443) — Tailscale-only: `dev.aryam.dev`, `files.aryam.dev`, `prow.aryam.dev`, `qb.aryam.dev`, `mousehole.aryam.dev`, `home.aryam.dev`, `logs.aryam.dev`, `dockhand.aryam.dev`, `stats.aryam.dev`, Traefik dashboard (`traf.aryam.dev`)
 - **Web** (port 80) — redirects to HTTPS
 
-Certificates are managed by Traefik's Cloudflare resolver, not certbot. Do not add certbot commands.
+Certificates are managed by Traefik's Cloudflare resolver (`cf`), not certbot. Do not add certbot commands.
 
 ## Service startup order
 
@@ -52,3 +51,4 @@ Certificates are managed by Traefik's Cloudflare resolver, not certbot. Do not a
 - Traefik cert resolver name is `cf` (Cloudflare)
 - CF_API_EMAIL and CF_DNS_API_TOKEN are required in `docker/traefik/.env` — never commit these
 - Use `aryam.dev` and its subdomains consistently (don't invent new domains)
+- Homepage service icons: follow `docker/homepage/AGENTS.md`
