@@ -38,3 +38,25 @@ services:
       - traefik.http.routers.absg.rule=Host(`absg.aryam.dev`)
       - traefik.http.routers.absg.entrypoints=public
       - traefik.http.services.absg.loadbalancer.server.port=8081
+
+  readmeabook:
+    image: ghcr.io/kikootwo/readmeabook:latest
+    container_name: readmeabook
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - ./readmeabook/config:/app/config
+      - ./readmeabook/cache:/app/cache
+      - /mnt/storagebox:/host/mnt/storagebox
+      - ./readmeabook/pgdata:/var/lib/postgresql/data
+      - ./readmeabook/redis:/var/lib/redis
+    environment:
+      PUID: 1000                      # Optional: your user ID
+      PGID: 1000                      # Optional: your group ID
+      PUBLIC_URL: "https://rmab.aryam.dev"  # Required for OAuth
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.rmab.rule=Host(`rmab.aryam.dev`)
+      - traefik.http.routers.rmab.entrypoints=public
+      - traefik.http.services.rmab.loadbalancer.server.port=3030

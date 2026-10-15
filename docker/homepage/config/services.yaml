@@ -9,6 +9,11 @@
         href: https://absg.aryam.dev
         description: ABS Green Proxy
         container: absg
+    - readmeabook:
+        icon: sh-readmeabook
+        href: https://rmab.aryam.dev
+        description: Audiobook Requests
+        container: readmeabook
     - site:
         icon: mdi-web
         href: https://aryam.dev
