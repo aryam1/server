@@ -1,11 +1,11 @@
 - Public:
     - abs:
-        icon: mdi-audiobook
+        icon: audiobookshelf
         href: https://abs.aryam.dev
         description: Audiobookshelf
         container: abs
     - absg:
-        icon: mdi-api
+        icon: si-audiobookshelf-#22c55e
         href: https://absg.aryam.dev
         description: ABS Green Proxy
         container: absg
@@ -15,60 +15,60 @@
         description: Audiobook Requests
         container: readmeabook
     - site:
-        icon: mdi-web
+        icon: https://aryam.dev/assets/favicon.svg
         href: https://aryam.dev
         description: Portfolio
         container: site
 
 - Media & Tools:
     - qbittorrent:
-        icon: mdi-download
+        icon: qbittorrent
         href: https://qb.aryam.dev
         description: qBittorrent
         container: qbittorrent
     - prowlarr:
-        icon: mdi-magnify
+        icon: prowlarr
         href: https://prow.aryam.dev
         description: Prowlarr
         container: prow
     - gluetun:
-        icon: mdi-vpn
+        icon: nordvpn
         description: Gluetun VPN
         container: gluetun
     - filebrowser:
-        icon: mdi-folder
+        icon: filebrowser-quantum
         href: https://files.aryam.dev
         description: File Browser
         container: files
     - mousehole:
-        icon: mdi-pipe
+        icon: mdi-rodent-#f0d453
         href: https://mousehole.aryam.dev
         description: Mousehole
         container: mousehole
 
 - Management:
     - dockhand:
-        icon: mdi-docker
+        icon: dockhand
         href: https://dockhand.aryam.dev
         description: Dockhand
         container: dockhand
     - dozzle:
-        icon: mdi-text-box-search
+        icon: dozzle
         href: https://logs.aryam.dev
         description: Dozzle Logs
         container: dozzle
     - traefik:
-        icon: mdi-lan
+        icon: traefik-proxy
         href: https://traf.aryam.dev
         description: Traefik
         container: traf
     - goatcounter:
-        icon: mdi-chart-bar
+        icon: sh-goatcounter
         href: https://stats.aryam.dev
         description: GoatCounter
         container: goatcounter
     - "dev site":
-        icon: mdi-web
+        icon: https://dev.aryam.dev/assets/favicon.svg
         href: https://dev.aryam.dev
         description: Dev Version
         container: site-dev
