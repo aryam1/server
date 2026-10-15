@@ -52,6 +52,8 @@ services:
     environment:
       TZ: Europe/London # Set to your timezone for localization
       MOUSEHOLE_INSECURE_ALLOW_NO_AUTH: true
+      MOUSEHOLE_ALLOWED_HOSTS: mousehole.aryam.dev
+      MOUSEHOLE_ALLOWED_ORIGINS: https://mousehole.aryam.dev
     volumes:
       # persist cookie data across container restarts
       - "mousehole:/var/lib/mousehole"
